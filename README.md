@@ -5,14 +5,16 @@ This project now includes the full backend "engine" for the existing frontend:
 - `Node.js + Express` API layer
 - `Vercel` deployment support through a serverless API entrypoint
 - `MySQL 8` schema with seed data
+- Oracle PL/SQL viva script
 - views, triggers, stored procedures, complex joins, and subqueries
 - frontend integration that replaces `mockData.js` with live API calls
+- DBMS docs page with ER diagram, normalization, and teacher-facing explanation notes
 
 ## Project Structure
 
 - `/backend`: MySQL access layer and API-facing repository logic
 - `/database`: schema, seed data, views, triggers, procedures, and demo SQL
-- `/docs`: architecture and normalization report
+- `/docs`: architecture, ER diagram, normalization, and viva guide
 - `/assets/js`: frontend modules, Chart.js helpers, and legacy mock file
 - `/pages`: existing HTML pages, now wired to the backend
 - `/api/handler.js`: Vercel function entrypoint for `/api/*`
@@ -56,7 +58,18 @@ The deployed project can run in two modes:
 
 - [database/mysql_startup_investment_system.sql](./database/mysql_startup_investment_system.sql)
 - [database/advanced_queries.sql](./database/advanced_queries.sql)
+- [database/oracle_plsql_queries.sql](./database/oracle_plsql_queries.sql)
 
 ## Documentation
 
 - [docs/backend-integration-report.md](./docs/backend-integration-report.md)
+- [docs/er-diagram-and-viva-guide.md](./docs/er-diagram-and-viva-guide.md)
+
+## College Demo Order
+
+1. Open `/pages/index.html` and explain the investor dashboard.
+2. Open `/pages/startups.html`, use filters, and click `+ Add Startup`.
+3. Open one startup detail page and explain CAC, LTV, burn rate, runway, churn, valuation, and risk.
+4. Open `/pages/recommendations.html` and explain the recommendation score.
+5. Open `/pages/analytics.html` and explain the graphs.
+6. Open `/pages/dbms.html` and show ER diagram, normalization, PL/SQL trigger, procedure, and complex join.

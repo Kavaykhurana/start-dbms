@@ -21,6 +21,8 @@ const port = Number(process.env.PORT || 3000);
 app.use(express.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/pages', express.static(path.join(__dirname, 'pages')));
+app.use('/database', express.static(path.join(__dirname, 'database')));
+app.use('/docs', express.static(path.join(__dirname, 'docs')));
 
 app.get('/', (_req, res) => {
     res.redirect('/pages/index.html');

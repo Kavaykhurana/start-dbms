@@ -29,6 +29,10 @@
     {
       "source": "/analytics.html",
       "destination": "/pages/analytics.html"
+    },
+    {
+      "source": "/dbms.html",
+      "destination": "/pages/dbms.html"
     }
   ]
 }

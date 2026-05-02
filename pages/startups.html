@@ -15,13 +15,14 @@
                 <li><a href="/pages/startups.html" class="active">Startups</a></li>
                 <li><a href="/pages/recommendations.html">Recommendations</a></li>
                 <li><a href="/pages/analytics.html">Analytics</a></li>
+                <li><a href="/pages/dbms.html">DBMS Docs</a></li>
             </ul>
         </nav>
 
         <main class="main-content">
             <header class="header">
                 <h1>Startup Portfolio</h1>
-                <button class="btn btn-primary">+ Add Startup</button>
+                <button class="btn btn-primary" id="add-startup-button">+ Add Startup</button>
             </header>
 
             <div class="glass-card">
@@ -48,7 +49,10 @@
                                 <th>Startup Name</th>
                                 <th>Sector</th>
                                 <th>Stage</th>
+                                <th>Location</th>
                                 <th>Total Funding</th>
+                                <th>Runway</th>
+                                <th>LTV/CAC</th>
                                 <th>Risk Level</th>
                                 <th>Action</th>
                             </tr>
@@ -60,6 +64,81 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <div class="modal-backdrop is-hidden" id="startup-modal" aria-hidden="true">
+        <div class="modal glass-card" role="dialog" aria-modal="true" aria-labelledby="startup-modal-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="startup-modal-title">Add Startup</h2>
+                    <p>Create a portfolio entry for this browser session.</p>
+                </div>
+                <button class="icon-button" id="close-startup-modal" type="button" aria-label="Close add startup form">×</button>
+            </div>
+
+            <form id="startup-form" class="form-grid">
+                <label>
+                    Startup Name
+                    <input name="name" type="text" placeholder="e.g. NeoPay Labs" required>
+                </label>
+                <label>
+                    Sector
+                    <input name="sector" type="text" placeholder="Fintech" required>
+                </label>
+                <label>
+                    Stage
+                    <select name="fundingStage" required>
+                        <option value="Seed">Seed</option>
+                        <option value="Series A">Series A</option>
+                        <option value="Series B">Series B</option>
+                    </select>
+                </label>
+                <label>
+                    City
+                    <input name="city" type="text" placeholder="Bengaluru" required>
+                </label>
+                <label>
+                    State
+                    <input name="state" type="text" placeholder="Karnataka" required>
+                </label>
+                <label>
+                    Funding (INR Cr)
+                    <input name="totalFundingCr" type="number" min="0" step="0.1" placeholder="8.5" required>
+                </label>
+                <label>
+                    Valuation (INR Cr)
+                    <input name="valuationCr" type="number" min="0" step="0.1" placeholder="55" required>
+                </label>
+                <label>
+                    Runway (Months)
+                    <input name="runway" type="number" min="0" step="0.1" placeholder="12" required>
+                </label>
+                <label>
+                    CAC (INR)
+                    <input name="cac" type="number" min="1" step="1" placeholder="2500" required>
+                </label>
+                <label>
+                    LTV (INR)
+                    <input name="ltv" type="number" min="1" step="1" placeholder="15000" required>
+                </label>
+                <label>
+                    Risk Level
+                    <select name="riskLevel" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </label>
+                <label>
+                    Churn Rate (%)
+                    <input name="churnRate" type="number" min="0" step="0.1" placeholder="3.5" required>
+                </label>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="cancel-startup-modal" type="button">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Save Startup</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="../assets/js/main.js"></script>

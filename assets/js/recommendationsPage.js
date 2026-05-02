@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         payload.items.forEach((startup) => {
             const card = document.createElement('div');
-            card.className = 'glass-card';
+            card.className = 'glass-card recommendation-card';
             card.style.marginBottom = '20px';
             card.style.display = 'flex';
             card.style.justifyContent = 'space-between';
@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-blue);">${startup.decisionScore.toFixed(2)}/10</div>
                     <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">LTV/CAC ${startup.ltvCacRatio.toFixed(2)} • Risk ${startup.riskScore.toFixed(0)}</div>
                     <div style="font-weight: 700; color: ${signalColor}; margin-top: 5px;">${startup.signal}</div>
+                    <a href="/pages/details.html?id=${startup.startupId}" class="btn btn-secondary" style="margin-top: 12px;">Open Details</a>
                 </div>
             `;
 

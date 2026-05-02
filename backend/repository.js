@@ -79,7 +79,7 @@ export async function getHealthCheck() {
 
 export async function getDashboardData() {
     try {
-        const [summaryRows, sectorRows, trendRows] = await Promise.all([
+        const [summaryRows, sectorRows, trendRows, stageRows, riskRows, recommendations] = await Promise.all([
             query(`
                 SELECT
                     (SELECT COUNT(*) FROM startups) AS totalStartups,
@@ -131,7 +131,30 @@ export async function getDashboardData() {
                 FROM investments
                 GROUP BY YEAR(investment_date), MONTH(investment_date), DATE_FORMAT(investment_date, '%b %Y')
                 ORDER BY MIN(investment_date)
-            `)
+            `),
+            query(`
+                SELECT
+                    funding_round AS label,
+                    ROUND(SUM(invested_amount_inr) / 10000000, 2) AS value
+                FROM investments
+                GROUP BY funding_round
+                ORDER BY value DESC
+            `),
+            query(`
+                SELECT
+                    riskLevel AS label,
+                    COUNT(*) AS value
+                FROM (
+                    SELECT
+                        s.startup_id,
+                        ${riskLabelSql} AS riskLevel
+                    FROM startups s
+                    ${latestRiskJoinSql}
+                ) risk_listing
+                GROUP BY riskLevel
+                ORDER BY FIELD(riskLevel, 'Low', 'Medium', 'High')
+            `),
+            getRecommendations()
         ]);
 
         const summary = summaryRows[0];
@@ -150,7 +173,16 @@ export async function getDashboardData() {
             investmentTrends: {
                 labels: trendRows.map((row) => row.label),
                 data: trendRows.map((row) => Number(row.amountInCrore || 0))
-            }
+            },
+            stageFunding: {
+                labels: stageRows.map((row) => row.label),
+                data: stageRows.map((row) => Number(row.value || 0))
+            },
+            riskDistribution: {
+                labels: riskRows.map((row) => row.label),
+                data: riskRows.map((row) => Number(row.value || 0))
+            },
+            topStartups: recommendations.items.slice(0, 5)
         };
     } catch (_error) {
         return fallbackData.dashboard;
@@ -188,9 +220,17 @@ export async function getStartups(filters) {
                         s.startup_name AS name,
                         sec.sector_name AS sector,
                         s.funding_stage AS fundingStage,
+                        s.city,
+                        s.state,
+                        s.current_valuation_inr AS valuation,
                         COALESCE(inv.total_funding_inr, 0) AS totalFunding,
                         COALESCE(rs.latest_risk_score, 50) AS riskScore,
-                        ${riskLabelSql} AS riskLevel
+                        ${riskLabelSql} AS riskLevel,
+                        COALESCE(fm.runway_months, 0) AS runway,
+                        CASE
+                            WHEN COALESCE(fm.cac_inr, 0) = 0 THEN 0
+                            ELSE ROUND(COALESCE(fm.ltv_inr, 0) / fm.cac_inr, 2)
+                        END AS ltvCacRatio
                     FROM startups s
                     JOIN sectors sec
                         ON sec.sector_id = s.sector_id
@@ -215,9 +255,14 @@ export async function getStartups(filters) {
                 name: row.name,
                 sector: row.sector,
                 fundingStage: row.fundingStage,
+                city: row.city,
+                state: row.state,
+                valuation: Number(row.valuation || 0),
                 totalFunding: Number(row.totalFunding || 0),
                 riskScore: Number(row.riskScore || 0),
-                riskLevel: row.riskLevel
+                riskLevel: row.riskLevel,
+                runway: Number(row.runway || 0),
+                ltvCacRatio: Number(row.ltvCacRatio || 0)
             }))
         };
     } catch (_error) {
@@ -327,7 +372,15 @@ export async function getRecommendations() {
 
 export async function getAnalyticsData() {
     try {
-        const [scatterRows, burnRunwayRows, sectorRows] = await Promise.all([
+        const [
+            scatterRows,
+            burnRunwayRows,
+            sectorRows,
+            stageRows,
+            sectorRiskRows,
+            valuationFundingRows,
+            churnRows
+        ] = await Promise.all([
             query(`
                 SELECT
                     s.startup_name AS label,
@@ -370,6 +423,45 @@ export async function getAnalyticsData() {
                 GROUP BY sec.sector_id, sec.sector_name
                 ORDER BY totalFundingInr DESC, sec.sector_name
                 LIMIT 4
+            `),
+            query(`
+                SELECT
+                    funding_round AS label,
+                    ROUND(SUM(invested_amount_inr) / 10000000, 2) AS value
+                FROM investments
+                GROUP BY funding_round
+                ORDER BY value DESC
+            `),
+            query(`
+                SELECT
+                    sec.sector_name AS label,
+                    ROUND(AVG(COALESCE(rs.latest_risk_score, 50)), 2) AS value
+                FROM sectors sec
+                JOIN startups s
+                    ON s.sector_id = sec.sector_id
+                ${latestRiskJoinSql}
+                GROUP BY sec.sector_id, sec.sector_name
+                ORDER BY value DESC
+            `),
+            query(`
+                SELECT
+                    s.startup_name AS label,
+                    ROUND(COALESCE(inv.total_funding_inr, 0) / 10000000, 2) AS x,
+                    ROUND(COALESCE(s.current_valuation_inr, 0) / 10000000, 2) AS y
+                FROM startups s
+                ${latestFundingJoinSql}
+                ORDER BY s.startup_name
+            `),
+            query(`
+                SELECT
+                    sec.sector_name AS label,
+                    ROUND(AVG(COALESCE(fm.churn_rate, 0)), 2) AS value
+                FROM sectors sec
+                JOIN startups s
+                    ON s.sector_id = sec.sector_id
+                ${latestMetricJoinSql}
+                GROUP BY sec.sector_id, sec.sector_name
+                ORDER BY value DESC
             `)
         ]);
 
@@ -418,6 +510,25 @@ export async function getAnalyticsData() {
                     borderColor: palette[index % palette.length].borderColor,
                     backgroundColor: palette[index % palette.length].backgroundColor
                 }))
+            },
+            fundingByStage: {
+                labels: stageRows.map((row) => row.label),
+                data: stageRows.map((row) => Number(row.value || 0))
+            },
+            riskBySector: {
+                labels: sectorRiskRows.map((row) => row.label),
+                data: sectorRiskRows.map((row) => Number(row.value || 0))
+            },
+            valuationFunding: {
+                points: valuationFundingRows.map((row) => ({
+                    label: row.label,
+                    x: Number(row.x || 0),
+                    y: Number(row.y || 0)
+                }))
+            },
+            churnBySector: {
+                labels: churnRows.map((row) => row.label),
+                data: churnRows.map((row) => Number(row.value || 0))
             }
         };
     } catch (_error) {
@@ -466,7 +577,14 @@ function filterFallbackStartups(filters) {
     const risk = String(filters.risk || '');
 
     const items = fallbackData.startups.filter((startup) => {
-        const matchesSearch = !search || startup.name.toLowerCase().includes(search);
+        const searchable = [
+            startup.name,
+            startup.sector,
+            startup.city,
+            startup.state,
+            startup.fundingStage
+        ].join(' ').toLowerCase();
+        const matchesSearch = !search || searchable.includes(search);
         const matchesSector = !sector || startup.sector === sector;
         const matchesRisk = !risk || startup.riskLevel === risk;
 

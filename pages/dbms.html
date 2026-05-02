@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBMS Docs | Startup Investment System</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">VENTURE ANALYTICS</div>
+            <ul class="nav-links">
+                <li><a href="/pages/index.html">Dashboard</a></li>
+                <li><a href="/pages/startups.html">Startups</a></li>
+                <li><a href="/pages/recommendations.html">Recommendations</a></li>
+                <li><a href="/pages/analytics.html">Analytics</a></li>
+                <li><a href="/pages/dbms.html" class="active">DBMS Docs</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h1>DBMS Viva Pack</h1>
+                    <p style="color: var(--text-secondary); margin-top: 8px;">ER model, normalization, PL/SQL triggers, stored procedures, views, and demo queries for evaluation.</p>
+                </div>
+                <a class="btn btn-primary" href="/pages/startups.html">Open Portfolio</a>
+            </header>
+
+            <div class="docs-grid">
+                <div class="glass-card doc-card">
+                    <h3>What to Show First</h3>
+                    <div class="detail-list">
+                        <div><span>Schema</span><strong>8 normalized tables</strong></div>
+                        <div><span>Integrity</span><strong>PK, FK, UNIQUE, CHECK</strong></div>
+                        <div><span>Automation</span><strong>2 triggers</strong></div>
+                        <div><span>Analytics</span><strong>Views + procedures</strong></div>
+                    </div>
+                </div>
+                <div class="glass-card doc-card">
+                    <h3>Files for External Review</h3>
+                    <p style="color: var(--text-secondary); margin: 10px 0 16px;">Use these files if a teacher asks for the actual SQL or report.</p>
+                    <a class="btn btn-secondary" href="/database/oracle_plsql_queries.sql">Oracle PL/SQL Script</a>
+                    <a class="btn btn-secondary" href="/docs/er-diagram-and-viva-guide.md" style="margin-left: 8px;">Viva Guide</a>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <div class="section-heading">
+                    <div>
+                        <h3>60-Second Explanation</h3>
+                        <p>Say this first if the teacher asks what the project does.</p>
+                    </div>
+                    <button class="btn btn-secondary copy-code" type="button" data-copy-target="pitch-code">Copy</button>
+                </div>
+                <pre class="code-panel" id="pitch-code">This is a Startup Investment Analysis and Decision System.
+The frontend shows a dashboard, startup portfolio, recommendation engine, analytics, and DBMS documentation.
+The backend exposes API endpoints that read normalized SQL data.
+The database has 8 main tables: sectors, investors, startups, investments, financial_metrics, market_data, partnerships, and risk_analysis.
+Investments connect investors and startups, while metrics and risk tables store time-changing analytical data.
+The main decision algorithm uses LTV/CAC, CAC efficiency, runway, and risk score to rank startups.
+The database also contains views, triggers, stored procedures, complex joins, and correlated subqueries for DBMS evaluation.</pre>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <div class="section-heading">
+                    <div>
+                        <h3>Final ER Diagram</h3>
+                        <p>Relationship direction matches the implemented SQL schema and API data flow.</p>
+                    </div>
+                </div>
+                <div class="er-grid">
+                    <div class="er-entity"><strong>Sectors</strong><span>sector_id PK</span><span>sector_name UNIQUE</span><span>1 to many startups</span></div>
+                    <div class="er-entity"><strong>Startups</strong><span>startup_id PK</span><span>sector_id FK</span><span>company master data</span></div>
+                    <div class="er-entity"><strong>Investors</strong><span>investor_id PK</span><span>investor_name UNIQUE</span><span>1 to many investments</span></div>
+                    <div class="er-entity"><strong>Investments</strong><span>investment_id PK</span><span>investor_id FK</span><span>startup_id FK</span></div>
+                    <div class="er-entity"><strong>FinancialMetrics</strong><span>metric_id PK</span><span>startup_id FK</span><span>CAC, LTV, burn, runway</span></div>
+                    <div class="er-entity"><strong>MarketData</strong><span>market_id PK</span><span>startup_id FK</span><span>trend and competitor score</span></div>
+                    <div class="er-entity"><strong>Partnerships</strong><span>partner_id PK</span><span>startup_id FK</span><span>LOI or Pilot</span></div>
+                    <div class="er-entity"><strong>RiskAnalysis</strong><span>risk_id PK</span><span>investment_id FK</span><span>risk score snapshots</span></div>
+                </div>
+            </div>
+
+            <div class="docs-grid" style="margin-top: 30px;">
+                <div class="glass-card doc-card">
+                    <div class="section-heading">
+                        <div>
+                            <h3>Trigger: Equity Check</h3>
+                            <p>Blocks a new investment if active equity for a startup crosses 100%.</p>
+                        </div>
+                        <button class="btn btn-secondary copy-code" type="button" data-copy-target="equity-code">Copy</button>
+                    </div>
+                    <pre class="code-panel" id="equity-code">CREATE OR REPLACE TRIGGER trig_EquityCheck
+FOR INSERT OR UPDATE OF equity_percentage, startup_id, status
+ON investments
+COMPOUND TRIGGER
+    TYPE t_startup_ids IS TABLE OF investments.startup_id%TYPE INDEX BY PLS_INTEGER;
+    g_startup_ids t_startup_ids;
+    g_count PLS_INTEGER := 0;
+
+    BEFORE EACH ROW IS
+    BEGIN
+        g_count := g_count + 1;
+        g_startup_ids(g_count) := :NEW.startup_id;
+    END BEFORE EACH ROW;
+
+    AFTER STATEMENT IS
+        v_total_equity NUMBER(7,2);
+    BEGIN
+        FOR idx IN 1 .. g_count LOOP
+            SELECT NVL(SUM(equity_percentage), 0)
+            INTO v_total_equity
+            FROM investments
+            WHERE startup_id = g_startup_ids(idx)
+              AND status = 'Active';
+
+            IF v_total_equity &gt; 100 THEN
+                RAISE_APPLICATION_ERROR(-20001, 'Equity cannot exceed 100 percent.');
+            END IF;
+        END LOOP;
+    END AFTER STATEMENT;
+END trig_EquityCheck;</pre>
+                </div>
+
+                <div class="glass-card doc-card">
+                    <div class="section-heading">
+                        <div>
+                            <h3>Procedure: ROI</h3>
+                            <p>Calculates ROI from latest net profit and investor equity.</p>
+                        </div>
+                        <button class="btn btn-secondary copy-code" type="button" data-copy-target="roi-code">Copy</button>
+                    </div>
+                    <pre class="code-panel" id="roi-code">CREATE OR REPLACE PROCEDURE sp_CalculateROI (
+    p_investment_id IN NUMBER,
+    p_roi_percentage OUT NUMBER
+) AS
+BEGIN
+    SELECT ROUND(
+        ((fm.net_profit_inr * 12 * 5 * (i.equity_percentage / 100))
+        / NULLIF(i.invested_amount_inr, 0)) * 100,
+        2
+    )
+    INTO p_roi_percentage
+    FROM investments i
+    JOIN financial_metrics fm
+      ON fm.startup_id = i.startup_id
+    WHERE i.investment_id = p_investment_id
+      AND fm.metric_month = (
+          SELECT MAX(metric_month)
+          FROM financial_metrics
+          WHERE startup_id = i.startup_id
+      );
+END;</pre>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <div class="section-heading">
+                    <div>
+                        <h3>Complex Join Demo</h3>
+                        <p>Use this to explain how investor, startup, sector, investment, financial, and risk tables combine.</p>
+                    </div>
+                    <button class="btn btn-secondary copy-code" type="button" data-copy-target="join-code">Copy</button>
+                </div>
+                <pre class="code-panel" id="join-code">SELECT
+    inv.investor_name,
+    s.startup_name,
+    sec.sector_name,
+    i.funding_round,
+    ROUND(fm.ltv_inr / NULLIF(fm.cac_inr, 0), 2) AS ltv_cac_ratio,
+    ra.risk_score
+FROM startups s
+JOIN sectors sec ON sec.sector_id = s.sector_id
+JOIN investments i ON i.startup_id = s.startup_id
+JOIN investors inv ON inv.investor_id = i.investor_id
+JOIN financial_metrics fm ON fm.startup_id = s.startup_id
+LEFT JOIN risk_analysis ra ON ra.investment_id = i.investment_id
+WHERE sec.sector_name = 'Fintech'
+  AND fm.metric_month = (
+      SELECT MAX(metric_month)
+      FROM financial_metrics
+      WHERE startup_id = s.startup_id
+  )
+ORDER BY ltv_cac_ratio DESC, ra.risk_score ASC;</pre>
+            </div>
+
+            <div class="docs-grid" style="margin-top: 30px;">
+                <div class="glass-card doc-card">
+                    <h3>Normalization Made Simple</h3>
+                    <div class="detail-list">
+                        <div><span>1NF</span><strong>Every cell stores one atomic value.</strong></div>
+                        <div><span>2NF</span><strong>Metrics depend on the complete metric row, not part of a combined key.</strong></div>
+                        <div><span>3NF</span><strong>Sector, investor, startup, and metric data are separated to remove transitive dependency.</strong></div>
+                        <div><span>BCNF</span><strong>Unique determinants like startup_name and sector_name are candidate keys.</strong></div>
+                    </div>
+                </div>
+                <div class="glass-card doc-card">
+                    <h3>Demo Order</h3>
+                    <div class="detail-list">
+                        <div><span>1</span><strong>Open Dashboard and explain KPIs.</strong></div>
+                        <div><span>2</span><strong>Open Startups and use search/filter/Add Startup.</strong></div>
+                        <div><span>3</span><strong>Open Analytics and explain graphs.</strong></div>
+                        <div><span>4</span><strong>Open this DBMS page and show ER + PL/SQL.</strong></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script type="module" src="../assets/js/dbmsPage.js"></script>
+</body>
+</html>

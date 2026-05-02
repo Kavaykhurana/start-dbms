@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const scatterCtx = document.getElementById('scatterChart').getContext('2d');
         const scatterData = analytics.scatter.points.map((point) => ({
+            label: point.label,
             x: point.x,
             y: point.y
         }));
@@ -30,6 +31,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ]
             },
             options: {
+                animation: {
+                    duration: 850,
+                    easing: 'easeOutQuart'
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                resizeDelay: 80,
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
@@ -41,6 +51,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const radarCtx = document.getElementById('radarChart').getContext('2d');
         createRadarChart(radarCtx, analytics.radar.labels, analytics.radar.datasets);
+
+        if (analytics.fundingByStage) {
+            const stageCtx = document.getElementById('stageFundingChart').getContext('2d');
+            createDoughnutChart(stageCtx, analytics.fundingByStage.labels, analytics.fundingByStage.data, 'Funding (INR Cr)');
+        }
+
+        if (analytics.riskBySector) {
+            const riskCtx = document.getElementById('sectorRiskChart').getContext('2d');
+            createBarChart(riskCtx, analytics.riskBySector.labels, analytics.riskBySector.data, 'Average Risk Score');
+        }
+
+        if (analytics.valuationFunding) {
+            const valuationCtx = document.getElementById('valuationFundingChart').getContext('2d');
+            createScatterPlot(
+                valuationCtx,
+                analytics.valuationFunding.points,
+                'Startups (Funding Cr vs Valuation Cr)'
+            );
+        }
+
+        if (analytics.churnBySector) {
+            const churnCtx = document.getElementById('churnSectorChart').getContext('2d');
+            createBarChart(churnCtx, analytics.churnBySector.labels, analytics.churnBySector.data, 'Average Churn (%)');
+        }
     } catch (error) {
         renderPageError('.main-content', error.message);
     }

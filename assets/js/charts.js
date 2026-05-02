@@ -9,7 +9,26 @@ const chartConfig = {
     }
 };
 
-function createBarChart(ctx, labels, data, label) {
+const sharedChartOptions = {
+    animation: {
+        duration: 850,
+        easing: 'easeOutQuart'
+    },
+    interaction: {
+        intersect: false,
+        mode: 'nearest'
+    },
+    resizeDelay: 80
+};
+
+const chartColors = ['#00d2ff', '#00ff88', '#ffb347', '#ff6b6b', '#b388ff', '#5eead4', '#f472b6'];
+
+if (window.Chart) {
+    Chart.defaults.color = chartConfig.defaults.color;
+    Chart.defaults.font.family = chartConfig.defaults.font.family;
+}
+
+function createBarChart(ctx, labels, data, label, colors = ['rgba(0, 210, 255, 0.6)']) {
     return new Chart(ctx, {
         type: 'bar',
         data: {
@@ -17,13 +36,14 @@ function createBarChart(ctx, labels, data, label) {
             datasets: [{
                 label: label,
                 data: data,
-                backgroundColor: 'rgba(0, 210, 255, 0.6)',
+                backgroundColor: labels.map((_, index) => colors[index % colors.length]),
                 borderColor: '#00d2ff',
                 borderWidth: 1,
                 borderRadius: 5
             }]
         },
         options: {
+            ...sharedChartOptions,
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -32,6 +52,37 @@ function createBarChart(ctx, labels, data, label) {
             },
             plugins: {
                 legend: { display: false }
+            }
+        }
+    });
+}
+
+function createDoughnutChart(ctx, labels, data, label) {
+    return new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                label,
+                data,
+                backgroundColor: labels.map((_, index) => chartColors[index % chartColors.length]),
+                borderColor: 'rgba(7, 11, 18, 0.8)',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            ...sharedChartOptions,
+            cutout: '64%',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 10,
+                        usePointStyle: true
+                    }
+                }
             }
         }
     });
@@ -55,6 +106,7 @@ function createLineChart(ctx, labels, data, label, color = '#00ff88') {
             }]
         },
         options: {
+            ...sharedChartOptions,
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -75,15 +127,29 @@ function createScatterPlot(ctx, data, label) {
             datasets: [{
                 label: label,
                 data: data,
-                backgroundColor: '#00d2ff'
+                backgroundColor: data.map((_, index) => chartColors[index % chartColors.length]),
+                pointRadius: 6,
+                pointHoverRadius: 8
             }]
         },
         options: {
+            ...sharedChartOptions,
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { title: { display: true, text: 'CAC ($)', color: '#b0b3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                y: { title: { display: true, text: 'LTV ($)', color: '#b0b3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                x: { title: { display: true, text: 'CAC / Funding (INR)', color: '#b0b3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { title: { display: true, text: 'LTV / Valuation (INR)', color: '#b0b3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label(context) {
+                            const point = context.raw;
+                            const name = point.label ? `${point.label}: ` : '';
+                            return `${name}${point.x}, ${point.y}`;
+                        }
+                    }
+                }
             }
         }
     });
@@ -97,6 +163,7 @@ function createRadarChart(ctx, labels, datasets) {
             datasets: datasets
         },
         options: {
+            ...sharedChartOptions,
             responsive: true,
             maintainAspectRatio: false,
             scales: {

@@ -17,6 +17,7 @@
                 <li><a href="/pages/startups.html">Startups</a></li>
                 <li><a href="/pages/recommendations.html">Recommendations</a></li>
                 <li><a href="/pages/analytics.html">Analytics</a></li>
+                <li><a href="/pages/dbms.html">DBMS Docs</a></li>
             </ul>
         </nav>
 
@@ -63,6 +64,29 @@
                         <canvas id="trendsChart"></canvas>
                     </div>
                 </div>
+                <div class="glass-card">
+                    <h3>Funding by Stage</h3>
+                    <div style="height: 300px; margin-top: 20px;">
+                        <canvas id="stageFundingChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3>Risk Distribution</h3>
+                    <div style="height: 300px; margin-top: 20px;">
+                        <canvas id="riskDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <div class="section-heading">
+                    <div>
+                        <h3>Top Investment Signals</h3>
+                        <p>Ranked by unit economics, runway, and portfolio risk.</p>
+                    </div>
+                    <a href="/pages/recommendations.html" class="btn btn-secondary">View Recommendations</a>
+                </div>
+                <div id="top-startup-list" class="signal-grid"></div>
             </div>
         </main>
     </div>
