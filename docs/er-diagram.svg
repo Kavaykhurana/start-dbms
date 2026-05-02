@@ -1,168 +1,205 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="920" viewBox="0 0 1400 920" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1050" viewBox="0 0 1500 1050" role="img" aria-labelledby="title desc">
   <title id="title">ER Diagram for Startup Investment Analysis and Decision System</title>
-  <desc id="desc">Eight entity ER diagram showing sectors, startups, investors, investments, financial metrics, market data, partnerships, and risk analysis with primary keys, foreign keys, and one-to-many relationships.</desc>
+  <desc id="desc">Crow foot style ER diagram with eight tables, primary keys, foreign keys, and one-to-many relationships.</desc>
   <defs>
-    <linearGradient id="entityFill" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#16202d"/>
+    <linearGradient id="cardFill" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#172231"/>
       <stop offset="100%" stop-color="#0d1420"/>
     </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.24"/>
+    <filter id="softShadow" x="-18%" y="-18%" width="136%" height="136%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000000" flood-opacity="0.26"/>
     </filter>
     <style>
       .bg { fill: #070b12; }
-      .grid { stroke: rgba(255,255,255,0.06); stroke-width: 1; }
-      .entity { fill: url(#entityFill); stroke: rgba(0,210,255,0.45); stroke-width: 2; rx: 14; filter: url(#shadow); }
-      .title { fill: #ffffff; font: 700 20px 'Poppins', 'Inter', Arial, sans-serif; }
-      .subtitle { fill: #00d2ff; font: 700 12px 'Inter', Arial, sans-serif; letter-spacing: 1px; }
-      .attr { fill: #dce7f3; font: 500 14px 'Inter', Arial, sans-serif; }
-      .muted { fill: #a7b1c0; font: 500 13px 'Inter', Arial, sans-serif; }
-      .pk { fill: #00ff88; font: 800 13px 'Inter', Arial, sans-serif; }
-      .fk { fill: #ffcc00; font: 800 13px 'Inter', Arial, sans-serif; }
+      .grid { stroke: rgba(255,255,255,0.055); stroke-width: 1; }
+      .entity { fill: url(#cardFill); stroke: rgba(0,210,255,0.52); stroke-width: 2; filter: url(#softShadow); }
+      .entityAlt { fill: #121b28; stroke: rgba(0,255,136,0.48); stroke-width: 2; filter: url(#softShadow); }
+      .entityWarn { fill: #151923; stroke: rgba(255,204,0,0.52); stroke-width: 2; filter: url(#softShadow); }
+      .head { fill: rgba(0,210,255,0.12); stroke: rgba(0,210,255,0.28); stroke-width: 1; }
+      .headAlt { fill: rgba(0,255,136,0.10); stroke: rgba(0,255,136,0.25); stroke-width: 1; }
+      .headWarn { fill: rgba(255,204,0,0.10); stroke: rgba(255,204,0,0.25); stroke-width: 1; }
+      .mainTitle { fill: #ffffff; font: 800 30px 'Poppins', 'Inter', Arial, sans-serif; }
+      .note { fill: #aeb8c6; font: 500 14px 'Inter', Arial, sans-serif; }
+      .tableTitle { fill: #ffffff; font: 800 18px 'Inter', Arial, sans-serif; letter-spacing: .5px; }
+      .kind { fill: #93eaff; font: 800 11px 'Inter', Arial, sans-serif; letter-spacing: 1.2px; }
+      .kindAlt { fill: #9bffd1; font: 800 11px 'Inter', Arial, sans-serif; letter-spacing: 1.2px; }
+      .kindWarn { fill: #ffe58a; font: 800 11px 'Inter', Arial, sans-serif; letter-spacing: 1.2px; }
+      .attr { fill: #dce7f3; font: 500 13px 'Inter', Arial, sans-serif; }
+      .pk { fill: #00ff88; font: 900 12px 'Inter', Arial, sans-serif; }
+      .fk { fill: #ffcc00; font: 900 12px 'Inter', Arial, sans-serif; }
+      .uk { fill: #b388ff; font: 900 12px 'Inter', Arial, sans-serif; }
       .rel { stroke: #8fe9ff; stroke-width: 2.4; fill: none; }
-      .relLabel { fill: #ffffff; font: 700 13px 'Inter', Arial, sans-serif; }
-      .relName { fill: #b0b3b8; font: 600 12px 'Inter', Arial, sans-serif; }
-      .badge { fill: rgba(0,210,255,0.16); stroke: rgba(0,210,255,0.42); stroke-width: 1; rx: 10; }
-      .badgeText { fill: #dff9ff; font: 700 12px 'Inter', Arial, sans-serif; }
+      .relAlt { stroke: #9bffd1; stroke-width: 2.4; fill: none; }
+      .relWarn { stroke: #ffe58a; stroke-width: 2.4; fill: none; }
+      .label { fill: #ffffff; font: 900 13px 'Inter', Arial, sans-serif; }
+      .relName { fill: #b9c4d2; font: 700 12px 'Inter', Arial, sans-serif; }
+      .legendBox { fill: rgba(255,255,255,0.055); stroke: rgba(255,255,255,0.14); stroke-width: 1; }
+      .legendText { fill: #dce7f3; font: 700 13px 'Inter', Arial, sans-serif; }
     </style>
   </defs>
 
-  <rect class="bg" width="1400" height="920"/>
-  <g opacity="0.8">
-    <path class="grid" d="M0 70H1400M0 140H1400M0 210H1400M0 280H1400M0 350H1400M0 420H1400M0 490H1400M0 560H1400M0 630H1400M0 700H1400M0 770H1400M0 840H1400"/>
-    <path class="grid" d="M70 0V920M140 0V920M210 0V920M280 0V920M350 0V920M420 0V920M490 0V920M560 0V920M630 0V920M700 0V920M770 0V920M840 0V920M910 0V920M980 0V920M1050 0V920M1120 0V920M1190 0V920M1260 0V920M1330 0V920"/>
+  <rect class="bg" width="1500" height="1050"/>
+  <g opacity="0.85">
+    <path class="grid" d="M0 75H1500M0 150H1500M0 225H1500M0 300H1500M0 375H1500M0 450H1500M0 525H1500M0 600H1500M0 675H1500M0 750H1500M0 825H1500M0 900H1500M0 975H1500"/>
+    <path class="grid" d="M75 0V1050M150 0V1050M225 0V1050M300 0V1050M375 0V1050M450 0V1050M525 0V1050M600 0V1050M675 0V1050M750 0V1050M825 0V1050M900 0V1050M975 0V1050M1050 0V1050M1125 0V1050M1200 0V1050M1275 0V1050M1350 0V1050M1425 0V1050"/>
   </g>
 
-  <text x="70" y="52" class="title" font-size="30">Startup Investment Analysis &amp; Decision System - ER Diagram</text>
-  <text x="70" y="82" class="muted">PK = Primary Key, FK = Foreign Key, 1:N = one parent row can connect to many child rows</text>
+  <text x="60" y="52" class="mainTitle">Startup Investment Analysis &amp; Decision System - ER Diagram</text>
+  <text x="60" y="82" class="note">Clean 3NF/BCNF model: master tables + investment transaction table + time-series analytics tables.</text>
 
-  <!-- Relationship lines behind entities -->
-  <g>
-    <path class="rel" d="M290 190 C380 190, 405 260, 500 330"/>
-    <text x="306" y="178" class="relLabel">1</text>
-    <text x="470" y="316" class="relLabel">N</text>
-    <text x="355" y="238" class="relName">classifies</text>
+  <!-- Relationship connectors -->
+  <g id="relationships">
+    <!-- Sectors -> Startups -->
+    <path class="rel" d="M330 202 H565"/>
+    <text x="345" y="192" class="label">1</text>
+    <text x="542" y="192" class="label">N</text>
+    <text x="420" y="188" class="relName">classifies</text>
 
-    <path class="rel" d="M755 455 C860 455, 910 455, 1015 455"/>
-    <text x="770" y="443" class="relLabel">1</text>
-    <text x="990" y="443" class="relLabel">N</text>
-    <text x="858" y="438" class="relName">receives</text>
+    <!-- Investors -> Investments -->
+    <path class="relAlt" d="M1170 280 V382"/>
+    <text x="1185" y="300" class="label">1</text>
+    <text x="1185" y="370" class="label">N</text>
+    <text x="1192" y="340" class="relName">funds</text>
 
-    <path class="rel" d="M1145 190 C1145 275, 1145 340, 1145 370"/>
-    <text x="1160" y="204" class="relLabel">1</text>
-    <text x="1160" y="362" class="relLabel">N</text>
-    <text x="1165" y="288" class="relName">funds</text>
+    <!-- Startups -> Investments -->
+    <path class="relAlt" d="M845 280 C900 320 925 360 965 430"/>
+    <text x="858" y="300" class="label">1</text>
+    <text x="942" y="415" class="label">N</text>
+    <text x="885" y="358" class="relName">receives</text>
 
-    <path class="rel" d="M615 545 C615 600, 360 620, 300 675"/>
-    <text x="630" y="563" class="relLabel">1</text>
-    <text x="316" y="664" class="relLabel">N</text>
-    <text x="425" y="617" class="relName">reports</text>
+    <!-- Startups -> Financial Metrics -->
+    <path class="rel" d="M660 330 V650 H215 V700"/>
+    <text x="674" y="352" class="label">1</text>
+    <text x="230" y="690" class="label">N</text>
+    <text x="318" y="638" class="relName">reports monthly</text>
 
-    <path class="rel" d="M655 545 C655 610, 650 650, 650 675"/>
-    <text x="670" y="563" class="relLabel">1</text>
-    <text x="665" y="664" class="relLabel">N</text>
-    <text x="670" y="617" class="relName">tracks</text>
+    <!-- Startups -> Market Data -->
+    <path class="rel" d="M715 330 V700"/>
+    <text x="730" y="352" class="label">1</text>
+    <text x="730" y="690" class="label">N</text>
+    <text x="733" y="575" class="relName">tracks</text>
 
-    <path class="rel" d="M720 545 C800 600, 940 620, 1000 675"/>
-    <text x="735" y="563" class="relLabel">1</text>
-    <text x="970" y="665" class="relLabel">N</text>
-    <text x="835" y="618" class="relName">signs</text>
+    <!-- Startups -> Partnerships -->
+    <path class="rel" d="M790 330 V650 H1020 V700"/>
+    <text x="805" y="352" class="label">1</text>
+    <text x="1035" y="690" class="label">N</text>
+    <text x="860" y="638" class="relName">signs</text>
 
-    <path class="rel" d="M1160 545 C1160 615, 1160 650, 1160 675"/>
-    <text x="1175" y="563" class="relLabel">1</text>
-    <text x="1175" y="664" class="relLabel">N</text>
-    <text x="1180" y="620" class="relName">assessed by</text>
+    <!-- Investments -> Risk Analysis -->
+    <path class="relWarn" d="M1170 600 V700"/>
+    <text x="1185" y="620" class="label">1</text>
+    <text x="1185" y="690" class="label">N</text>
+    <text x="1193" y="660" class="relName">assessed by</text>
   </g>
 
   <!-- SECTORS -->
-  <g transform="translate(70 120)">
-    <rect class="entity" width="220" height="140"/>
-    <text x="18" y="30" class="title">SECTORS</text>
-    <text x="18" y="52" class="subtitle">MASTER TABLE</text>
-    <text x="18" y="82" class="pk">PK</text><text x="52" y="82" class="attr">sector_id</text>
-    <text x="18" y="106" class="attr">sector_name UNIQUE</text>
-    <text x="18" y="130" class="attr">base_risk_score</text>
+  <g transform="translate(60 125)">
+    <rect class="entity" width="270" height="155" rx="14"/>
+    <rect class="head" x="0" y="0" width="270" height="52" rx="14"/>
+    <text x="18" y="25" class="tableTitle">SECTORS</text>
+    <text x="18" y="43" class="kind">MASTER / LOOKUP</text>
+    <text x="18" y="78" class="pk">PK</text><text x="52" y="78" class="attr">sector_id</text>
+    <text x="18" y="103" class="uk">UK</text><text x="52" y="103" class="attr">sector_name</text>
+    <text x="52" y="128" class="attr">sector_description</text>
+    <text x="52" y="150" class="attr">base_risk_score</text>
   </g>
 
   <!-- STARTUPS -->
-  <g transform="translate(500 330)">
-    <rect class="entity" width="255" height="215"/>
-    <text x="18" y="30" class="title">STARTUPS</text>
-    <text x="18" y="52" class="subtitle">COMPANY MASTER</text>
-    <text x="18" y="82" class="pk">PK</text><text x="52" y="82" class="attr">startup_id</text>
-    <text x="18" y="106" class="fk">FK</text><text x="52" y="106" class="attr">sector_id</text>
-    <text x="18" y="130" class="attr">startup_name UNIQUE</text>
-    <text x="18" y="154" class="attr">city, state</text>
-    <text x="18" y="178" class="attr">funding_stage</text>
-    <text x="18" y="202" class="attr">current_valuation_inr</text>
+  <g transform="translate(565 95)">
+    <rect class="entity" width="330" height="235" rx="14"/>
+    <rect class="head" x="0" y="0" width="330" height="52" rx="14"/>
+    <text x="18" y="25" class="tableTitle">STARTUPS</text>
+    <text x="18" y="43" class="kind">COMPANY MASTER</text>
+    <text x="18" y="78" class="pk">PK</text><text x="52" y="78" class="attr">startup_id</text>
+    <text x="18" y="103" class="fk">FK</text><text x="52" y="103" class="attr">sector_id -> sectors</text>
+    <text x="18" y="128" class="uk">UK</text><text x="52" y="128" class="attr">startup_name</text>
+    <text x="52" y="153" class="attr">city, state, founding_year</text>
+    <text x="52" y="178" class="attr">funding_stage</text>
+    <text x="52" y="203" class="attr">annual_revenue_inr</text>
+    <text x="52" y="225" class="attr">current_valuation_inr, equity_pct</text>
   </g>
 
   <!-- INVESTORS -->
-  <g transform="translate(1035 120)">
-    <rect class="entity" width="245" height="160"/>
-    <text x="18" y="30" class="title">INVESTORS</text>
-    <text x="18" y="52" class="subtitle">FUNDING SOURCE</text>
-    <text x="18" y="82" class="pk">PK</text><text x="52" y="82" class="attr">investor_id</text>
-    <text x="18" y="106" class="attr">investor_name UNIQUE</text>
-    <text x="18" y="130" class="attr">investor_type</text>
-    <text x="18" y="154" class="attr">risk_preference</text>
+  <g transform="translate(1030 125)">
+    <rect class="entityAlt" width="285" height="155" rx="14"/>
+    <rect class="headAlt" x="0" y="0" width="285" height="52" rx="14"/>
+    <text x="18" y="25" class="tableTitle">INVESTORS</text>
+    <text x="18" y="43" class="kindAlt">FUNDING SOURCE</text>
+    <text x="18" y="78" class="pk">PK</text><text x="52" y="78" class="attr">investor_id</text>
+    <text x="18" y="103" class="uk">UK</text><text x="52" y="103" class="attr">investor_name, email</text>
+    <text x="52" y="128" class="attr">investor_type, hq_city</text>
+    <text x="52" y="150" class="attr">dry_powder_inr, risk_preference</text>
   </g>
 
   <!-- INVESTMENTS -->
-  <g transform="translate(1015 370)">
-    <rect class="entity" width="270" height="175"/>
-    <text x="18" y="30" class="title">INVESTMENTS</text>
-    <text x="18" y="52" class="subtitle">TRANSACTION TABLE</text>
-    <text x="18" y="82" class="pk">PK</text><text x="52" y="82" class="attr">investment_id</text>
-    <text x="18" y="106" class="fk">FK</text><text x="52" y="106" class="attr">investor_id</text>
-    <text x="18" y="130" class="fk">FK</text><text x="52" y="130" class="attr">startup_id</text>
-    <text x="18" y="154" class="attr">amount, round, equity_pct</text>
+  <g transform="translate(965 382)">
+    <rect class="entityAlt" width="330" height="218" rx="14"/>
+    <rect class="headAlt" x="0" y="0" width="330" height="52" rx="14"/>
+    <text x="18" y="25" class="tableTitle">INVESTMENTS</text>
+    <text x="18" y="43" class="kindAlt">TRANSACTION / FACT</text>
+    <text x="18" y="78" class="pk">PK</text><text x="52" y="78" class="attr">investment_id</text>
+    <text x="18" y="103" class="fk">FK</text><text x="52" y="103" class="attr">investor_id -> investors</text>
+    <text x="18" y="128" class="fk">FK</text><text x="52" y="128" class="attr">startup_id -> startups</text>
+    <text x="52" y="153" class="attr">funding_round, security_type</text>
+    <text x="52" y="178" class="attr">investment_date, amount</text>
+    <text x="52" y="203" class="attr">equity_percentage, status</text>
   </g>
 
-  <!-- FINANCIAL METRICS -->
-  <g transform="translate(70 675)">
-    <rect class="entity" width="290" height="170"/>
-    <text x="18" y="30" class="title">FINANCIAL_METRICS</text>
-    <text x="18" y="52" class="subtitle">MONTHLY PERFORMANCE</text>
-    <text x="18" y="82" class="pk">PK</text><text x="52" y="82" class="attr">metric_id</text>
-    <text x="18" y="106" class="fk">FK</text><text x="52" y="106" class="attr">startup_id</text>
-    <text x="18" y="130" class="attr">metric_month UNIQUE pair</text>
-    <text x="18" y="154" class="attr">CAC, LTV, burn, runway, churn</text>
+  <!-- FINANCIAL_METRICS -->
+  <g transform="translate(60 700)">
+    <rect class="entity" width="330" height="220" rx="14"/>
+    <rect class="head" x="0" y="0" width="330" height="52" rx="14"/>
+    <text x="18" y="25" class="tableTitle">FINANCIAL_METRICS</text>
+    <text x="18" y="43" class="kind">MONTHLY OPERATIONS</text>
+    <text x="18" y="78" class="pk">PK</text><text x="52" y="78" class="attr">metric_id</text>
+    <text x="18" y="103" class="fk">FK</text><text x="52" y="103" class="attr">startup_id -> startups</text>
+    <text x="18" y="128" class="uk">UK</text><text x="52" y="128" class="attr">(startup_id, metric_month)</text>
+    <text x="52" y="153" class="attr">revenue_inr, net_profit_inr</text>
+    <text x="52" y="178" class="attr">CAC, LTV, burn_rate</text>
+    <text x="52" y="203" class="attr">runway_months, churn_rate</text>
   </g>
 
-  <!-- MARKET DATA -->
-  <g transform="translate(505 675)">
-    <rect class="entity" width="280" height="150"/>
-    <text x="18" y="30" class="title">MARKET_DATA</text>
-    <text x="18" y="52" class="subtitle">MARKET SIGNALS</text>
-    <text x="18" y="82" class="pk">PK</text><text x="52" y="82" class="attr">market_id</text>
-    <text x="18" y="106" class="fk">FK</text><text x="52" y="106" class="attr">startup_id</text>
-    <text x="18" y="130" class="attr">trend_value, competitor_score</text>
+  <!-- MARKET_DATA -->
+  <g transform="translate(560 700)">
+    <rect class="entity" width="315" height="180" rx="14"/>
+    <rect class="head" x="0" y="0" width="315" height="52" rx="14"/>
+    <text x="18" y="25" class="tableTitle">MARKET_DATA</text>
+    <text x="18" y="43" class="kind">EXTERNAL SIGNALS</text>
+    <text x="18" y="78" class="pk">PK</text><text x="52" y="78" class="attr">market_id</text>
+    <text x="18" y="103" class="fk">FK</text><text x="52" y="103" class="attr">startup_id -> startups</text>
+    <text x="18" y="128" class="uk">UK</text><text x="52" y="128" class="attr">(startup_id, market_date)</text>
+    <text x="52" y="153" class="attr">trend_value, competitor_score</text>
   </g>
 
   <!-- PARTNERSHIPS -->
-  <g transform="translate(910 675)">
-    <rect class="entity" width="275" height="150"/>
-    <text x="18" y="30" class="title">PARTNERSHIPS</text>
-    <text x="18" y="52" class="subtitle">COMMERCIAL VALIDATION</text>
-    <text x="18" y="82" class="pk">PK</text><text x="52" y="82" class="attr">partner_id</text>
-    <text x="18" y="106" class="fk">FK</text><text x="52" y="106" class="attr">startup_id</text>
-    <text x="18" y="130" class="attr">partner_name, deal_type, impact</text>
+  <g transform="translate(930 700)">
+    <rect class="entity" width="315" height="180" rx="14"/>
+    <rect class="head" x="0" y="0" width="315" height="52" rx="14"/>
+    <text x="18" y="25" class="tableTitle">PARTNERSHIPS</text>
+    <text x="18" y="43" class="kind">COMMERCIAL PROOF</text>
+    <text x="18" y="78" class="pk">PK</text><text x="52" y="78" class="attr">partner_id</text>
+    <text x="18" y="103" class="fk">FK</text><text x="52" y="103" class="attr">startup_id -> startups</text>
+    <text x="52" y="128" class="attr">partner_name</text>
+    <text x="52" y="153" class="attr">deal_type, impact_score</text>
   </g>
 
-  <!-- RISK ANALYSIS -->
-  <g transform="translate(1070 675)">
-    <rect class="entity" width="270" height="170"/>
-    <text x="18" y="30" class="title">RISK_ANALYSIS</text>
-    <text x="18" y="52" class="subtitle">RISK SNAPSHOTS</text>
-    <text x="18" y="82" class="pk">PK</text><text x="52" y="82" class="attr">risk_id</text>
-    <text x="18" y="106" class="fk">FK</text><text x="52" y="106" class="attr">investment_id</text>
-    <text x="18" y="130" class="attr">risk_score</text>
-    <text x="18" y="154" class="attr">factors, assessment_date</text>
+  <!-- RISK_ANALYSIS -->
+  <g transform="translate(1135 700)">
+    <rect class="entityWarn" width="300" height="190" rx="14"/>
+    <rect class="headWarn" x="0" y="0" width="300" height="52" rx="14"/>
+    <text x="18" y="25" class="tableTitle">RISK_ANALYSIS</text>
+    <text x="18" y="43" class="kindWarn">RISK SNAPSHOTS</text>
+    <text x="18" y="78" class="pk">PK</text><text x="52" y="78" class="attr">risk_id</text>
+    <text x="18" y="103" class="fk">FK</text><text x="52" y="103" class="attr">investment_id -> investments</text>
+    <text x="18" y="128" class="uk">UK</text><text x="52" y="128" class="attr">(investment_id, assessment_date)</text>
+    <text x="52" y="153" class="attr">risk_score</text>
+    <text x="52" y="176" class="attr">factors</text>
   </g>
 
-  <g transform="translate(70 865)">
-    <rect class="badge" width="390" height="34"/>
-    <text x="16" y="23" class="badgeText">Core design: master data + transaction table + time-series analytic tables</text>
+  <!-- Legend -->
+  <g transform="translate(60 960)">
+    <rect class="legendBox" width="840" height="54" rx="12"/>
+    <text x="18" y="23" class="legendText">Legend: PK = Primary Key, FK = Foreign Key, UK = Unique Key, 1:N = one parent row can have many child rows.</text>
+    <text x="18" y="43" class="legendText">Main many-to-many business relationship is Investor <-> Startup, resolved through the Investments transaction table.</text>
   </g>
 </svg>

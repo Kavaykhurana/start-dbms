@@ -179,6 +179,39 @@ The database also contains views, triggers, stored procedures, complex joins, an
                     </div>
                 </div>
 
+                <div class="table-container" style="margin-bottom: 18px;">
+                    <table class="schema-table">
+                        <thead>
+                            <tr>
+                                <th>Requirement</th>
+                                <th>What Is Included</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>5 Complex Joins</strong></td>
+                                <td>Highest ROI Fintech investors, partnership leverage, investor diversification, runway stress with exposure, funding efficiency across six entities.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5 Correlated Subqueries</strong></td>
+                                <td>Burn above sector average, LTV/CAC above sector average, investor deployment above type average, runway above sector average, market trend above sector average.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2 Views</strong></td>
+                                <td><code>vw_TopStartups</code> and <code>vw_HighRiskAlerts</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2 Triggers</strong></td>
+                                <td><code>trig_EquityCheck</code> and <code>trig_RiskUpdate</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2 Stored Procedures</strong></td>
+                                <td><code>sp_CalculateROI</code> and <code>sp_GetRecommendation</code>.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <div class="query-grid">
                     <details class="query-card" open>
                         <summary>View 1: vw_TopStartups</summary>
@@ -198,7 +231,7 @@ AND (fm.ltv_inr / NULLIF(fm.cac_inr, 0)) >= 4
 AND fm.runway_months >= 9;</pre>
                     </details>
 
-                    <details class="query-card">
+                    <details class="query-card" open>
                         <summary>View 2: vw_HighRiskAlerts</summary>
                         <pre class="code-panel">CREATE OR REPLACE VIEW vw_HighRiskAlerts AS
 SELECT s.startup_name, sec.sector_name, fm.burn_rate_inr,
@@ -212,7 +245,7 @@ WHERE fm.runway_months < 6
 GROUP BY s.startup_name, sec.sector_name, fm.burn_rate_inr, fm.runway_months, fm.churn_rate;</pre>
                     </details>
 
-                    <details class="query-card">
+                    <details class="query-card" open>
                         <summary>Trigger 1: trig_EquityCheck</summary>
                         <pre class="code-panel">CREATE TRIGGER trig_EquityCheck
 BEFORE INSERT ON investments
@@ -233,7 +266,7 @@ BEGIN
 END;</pre>
                     </details>
 
-                    <details class="query-card">
+                    <details class="query-card" open>
                         <summary>Trigger 2: trig_RiskUpdate</summary>
                         <pre class="code-panel">CREATE TRIGGER trig_RiskUpdate
 AFTER UPDATE ON financial_metrics
@@ -253,7 +286,7 @@ BEGIN
 END;</pre>
                     </details>
 
-                    <details class="query-card">
+                    <details class="query-card" open>
                         <summary>Procedure 1: sp_CalculateROI</summary>
                         <pre class="code-panel">CREATE PROCEDURE sp_CalculateROI (
     IN p_investment_id BIGINT,
@@ -274,7 +307,7 @@ BEGIN
 END;</pre>
                     </details>
 
-                    <details class="query-card">
+                    <details class="query-card" open>
                         <summary>Procedure 2: sp_GetRecommendation</summary>
                         <pre class="code-panel">CREATE PROCEDURE sp_GetRecommendation()
 BEGIN
@@ -306,7 +339,7 @@ BEGIN
 END;</pre>
                     </details>
 
-                    <details class="query-card">
+                    <details class="query-card" open>
                         <summary>Complex Join: highest ROI Fintech investors</summary>
                         <pre class="code-panel">SELECT inv.investor_name, s.startup_name, sec.sector_name,
        i.funding_round, fm.net_profit_inr, ra.risk_score,
@@ -322,7 +355,7 @@ WHERE sec.sector_name = 'Fintech'
 ORDER BY roi_proxy_pct DESC;</pre>
                     </details>
 
-                    <details class="query-card">
+                    <details class="query-card" open>
                         <summary>Correlated Subquery: sector-average burn rate</summary>
                         <pre class="code-panel">SELECT s.startup_name, sec.sector_name, fm.burn_rate_inr
 FROM startups s
