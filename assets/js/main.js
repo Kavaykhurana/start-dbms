@@ -128,10 +128,10 @@ function mountFullViewToggle() {
         return;
     }
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'full-view-switcher';
+    const sidebarWrapper = document.createElement('div');
+    sidebarWrapper.className = 'full-view-switcher';
 
-    wrapper.innerHTML = `
+    sidebarWrapper.innerHTML = `
         <label class="view-slider" for="full-view-toggle">
             <input id="full-view-toggle" type="checkbox">
             <span class="view-slider-track" aria-hidden="true"><span></span></span>
@@ -142,7 +142,25 @@ function mountFullViewToggle() {
         </label>
     `;
 
-    const checkbox = wrapper.querySelector('#full-view-toggle');
+    const pageWrapper = document.createElement('div');
+    pageWrapper.className = 'full-view-page-switcher';
+    pageWrapper.innerHTML = `
+        <label class="view-slider view-slider-prominent" for="full-view-page-toggle">
+            <input id="full-view-page-toggle" type="checkbox">
+            <span class="view-slider-track" aria-hidden="true"><span></span></span>
+            <span class="view-slider-copy">
+                <strong>Full Screen View</strong>
+                <small>Slide on to expand the dashboard</small>
+            </span>
+        </label>
+    `;
+
+    const checkboxes = [
+        sidebarWrapper.querySelector('#full-view-toggle'),
+        pageWrapper.querySelector('#full-view-page-toggle')
+    ];
+    const mainContent = document.querySelector('.main-content');
+    const header = mainContent?.querySelector('.header');
     const sidebar = document.querySelector('.sidebar');
     const exitButton = document.createElement('button');
     exitButton.id = 'full-view-exit';
@@ -152,10 +170,13 @@ function mountFullViewToggle() {
 
     function syncFullViewControls() {
         const isEnabled = document.documentElement.dataset.fullView === 'true';
-        checkbox.checked = isEnabled;
-        checkbox.setAttribute('aria-checked', String(isEnabled));
+        checkboxes.forEach((checkbox) => {
+            checkbox.checked = isEnabled;
+            checkbox.setAttribute('aria-checked', String(isEnabled));
+        });
         sidebar.toggleAttribute('inert', isEnabled);
         sidebar.setAttribute('aria-hidden', String(isEnabled));
+        pageWrapper.classList.toggle('is-active', isEnabled);
         exitButton.classList.toggle('is-visible', isEnabled);
     }
 
@@ -169,11 +190,18 @@ function mountFullViewToggle() {
         syncFullViewControls();
     }
 
-    checkbox.addEventListener('change', () => setFullView(checkbox.checked));
+    checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', () => setFullView(checkbox.checked));
+    });
     exitButton.addEventListener('click', () => setFullView(false));
 
     syncFullViewControls();
-    controls.appendChild(wrapper);
+    controls.appendChild(sidebarWrapper);
+    if (header) {
+        header.insertAdjacentElement('afterend', pageWrapper);
+    } else if (mainContent) {
+        mainContent.prepend(pageWrapper);
+    }
     document.body.appendChild(exitButton);
 }
 
