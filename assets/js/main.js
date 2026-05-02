@@ -1,7 +1,9 @@
 // Global logic and UI helpers
 const THEME_STORAGE_KEY = 'ventureAnalytics.theme';
+const SIDEBAR_VIEW_STORAGE_KEY = 'ventureAnalytics.sidebarFullView';
 
 applyTheme(getStoredTheme());
+applySidebarView(getStoredSidebarView());
 
 document.addEventListener('DOMContentLoaded', () => {
     const currentPath = normalizePath(window.location.pathname);
@@ -17,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mountAcademicDataNote();
     mountTeacherDemo();
+    mountSidebarViewToggle();
     mountThemeToggle();
 });
 
@@ -56,6 +59,14 @@ function getStoredTheme() {
 
 function applyTheme(theme) {
     document.documentElement.dataset.theme = theme;
+}
+
+function getStoredSidebarView() {
+    return localStorage.getItem(SIDEBAR_VIEW_STORAGE_KEY) === 'true';
+}
+
+function applySidebarView(isEnabled) {
+    document.documentElement.dataset.sidebarFullView = isEnabled ? 'true' : 'false';
 }
 
 function getSidebarControls() {
@@ -108,6 +119,50 @@ function mountThemeToggle() {
     syncButton();
     wrapper.appendChild(button);
     controls.appendChild(wrapper);
+}
+
+function mountSidebarViewToggle() {
+    const sidebar = document.querySelector('.sidebar');
+    const logo = sidebar?.querySelector('.logo');
+
+    if (!sidebar || !logo || document.getElementById('sidebar-full-view-toggle')) {
+        return;
+    }
+
+    const topBar = document.createElement('div');
+    topBar.className = 'sidebar-topbar';
+
+    const button = document.createElement('button');
+    button.id = 'sidebar-full-view-toggle';
+    button.className = 'sidebar-full-view-toggle';
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Toggle full screen view');
+    button.title = 'Toggle full screen view';
+    button.innerHTML = `
+        <span class="sidebar-full-view-lines" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+    `;
+
+    function syncButton() {
+        const isEnabled = document.documentElement.dataset.sidebarFullView === 'true';
+        button.classList.toggle('is-active', isEnabled);
+        button.setAttribute('aria-pressed', String(isEnabled));
+    }
+
+    button.addEventListener('click', () => {
+        const isEnabled = document.documentElement.dataset.sidebarFullView !== 'true';
+        localStorage.setItem(SIDEBAR_VIEW_STORAGE_KEY, String(isEnabled));
+        applySidebarView(isEnabled);
+        syncButton();
+    });
+
+    logo.insertAdjacentElement('beforebegin', topBar);
+    topBar.appendChild(logo);
+    topBar.appendChild(button);
+    syncButton();
 }
 
 function mountAcademicDataNote() {
