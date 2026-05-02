@@ -57,6 +57,37 @@ function createBarChart(ctx, labels, data, label, colors = ['rgba(0, 210, 255, 0
     });
 }
 
+function createHorizontalBarChart(ctx, labels, data, label, colors = ['rgba(0, 210, 255, 0.6)']) {
+    return new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label,
+                data,
+                backgroundColor: labels.map((_, index) => colors[index % colors.length]),
+                borderColor: labels.map((_, index) => colors[index % colors.length].replace('0.72', '1').replace('0.55', '1')),
+                borderWidth: 1,
+                borderRadius: 7,
+                barThickness: 18
+            }]
+        },
+        options: {
+            ...sharedChartOptions,
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
 function createDoughnutChart(ctx, labels, data, label) {
     return new Chart(ctx, {
         type: 'doughnut',

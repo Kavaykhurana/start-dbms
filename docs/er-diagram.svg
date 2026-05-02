@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1050" viewBox="0 0 1500 1050" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-labelledby="title desc">
   <title id="title">ER Diagram for Startup Investment Analysis and Decision System</title>
   <desc id="desc">Crow foot style ER diagram with eight tables, primary keys, foreign keys, and one-to-many relationships.</desc>
   <defs>
@@ -38,10 +38,10 @@
     </style>
   </defs>
 
-  <rect class="bg" width="1500" height="1050"/>
+  <rect class="bg" width="1600" height="1050"/>
   <g opacity="0.85">
-    <path class="grid" d="M0 75H1500M0 150H1500M0 225H1500M0 300H1500M0 375H1500M0 450H1500M0 525H1500M0 600H1500M0 675H1500M0 750H1500M0 825H1500M0 900H1500M0 975H1500"/>
-    <path class="grid" d="M75 0V1050M150 0V1050M225 0V1050M300 0V1050M375 0V1050M450 0V1050M525 0V1050M600 0V1050M675 0V1050M750 0V1050M825 0V1050M900 0V1050M975 0V1050M1050 0V1050M1125 0V1050M1200 0V1050M1275 0V1050M1350 0V1050M1425 0V1050"/>
+    <path class="grid" d="M0 75H1600M0 150H1600M0 225H1600M0 300H1600M0 375H1600M0 450H1600M0 525H1600M0 600H1600M0 675H1600M0 750H1600M0 825H1600M0 900H1600M0 975H1600"/>
+    <path class="grid" d="M75 0V1050M150 0V1050M225 0V1050M300 0V1050M375 0V1050M450 0V1050M525 0V1050M600 0V1050M675 0V1050M750 0V1050M825 0V1050M900 0V1050M975 0V1050M1050 0V1050M1125 0V1050M1200 0V1050M1275 0V1050M1350 0V1050M1425 0V1050M1500 0V1050M1575 0V1050"/>
   </g>
 
   <text x="60" y="52" class="mainTitle">Startup Investment Analysis &amp; Decision System - ER Diagram</text>
@@ -86,10 +86,10 @@
     <text x="860" y="638" class="relName">signs</text>
 
     <!-- Investments -> Risk Analysis -->
-    <path class="relWarn" d="M1170 600 V700"/>
-    <text x="1185" y="620" class="label">1</text>
-    <text x="1185" y="690" class="label">N</text>
-    <text x="1193" y="660" class="relName">assessed by</text>
+    <path class="relWarn" d="M1130 600 V650 H1410 V700"/>
+    <text x="1145" y="620" class="label">1</text>
+    <text x="1425" y="690" class="label">N</text>
+    <text x="1215" y="640" class="relName">assessed by</text>
   </g>
 
   <!-- SECTORS -->
@@ -184,7 +184,7 @@
   </g>
 
   <!-- RISK_ANALYSIS -->
-  <g transform="translate(1135 700)">
+  <g transform="translate(1260 700)">
     <rect class="entityWarn" width="300" height="190" rx="14"/>
     <rect class="headWarn" x="0" y="0" width="300" height="52" rx="14"/>
     <text x="18" y="25" class="tableTitle">RISK_ANALYSIS</text>
@@ -200,6 +200,6 @@
   <g transform="translate(60 960)">
     <rect class="legendBox" width="840" height="54" rx="12"/>
     <text x="18" y="23" class="legendText">Legend: PK = Primary Key, FK = Foreign Key, UK = Unique Key, 1:N = one parent row can have many child rows.</text>
-    <text x="18" y="43" class="legendText">Main many-to-many business relationship is Investor <-> Startup, resolved through the Investments transaction table.</text>
+    <text x="18" y="43" class="legendText">Main many-to-many business relationship is Investor to Startup, resolved through the Investments transaction table.</text>
   </g>
 </svg>
