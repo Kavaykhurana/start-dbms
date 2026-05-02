@@ -536,6 +536,66 @@ export async function getAnalyticsData() {
     }
 }
 
+export async function getInvestorPortfolio() {
+    try {
+        const investorRows = await query(`
+            SELECT
+                inv.investor_id AS id,
+                inv.investor_name AS name,
+                inv.investor_type AS investorType,
+                inv.hq_city AS hqCity,
+                inv.risk_preference AS riskPreference,
+                COUNT(DISTINCT i.startup_id) AS startupCount,
+                ROUND(SUM(i.invested_amount_inr), 2) AS totalDeployedInr,
+                ROUND(AVG(COALESCE(rs.latest_risk_score, 50)), 2) AS avgRiskScore,
+                ROUND(AVG(CASE WHEN COALESCE(fm.cac_inr, 0) = 0 THEN 0 ELSE fm.ltv_inr / fm.cac_inr END), 2) AS avgLtvCac,
+                ROUND(AVG(((COALESCE(fm.net_profit_inr, 0) * 12 * 5 * (i.equity_percentage / 100)) / NULLIF(i.invested_amount_inr, 0)) * 100), 2) AS roiProxy,
+                GROUP_CONCAT(DISTINCT sec.sector_name ORDER BY sec.sector_name SEPARATOR ', ') AS sectors,
+                GROUP_CONCAT(DISTINCT s.startup_name ORDER BY s.startup_name SEPARATOR ', ') AS startups
+            FROM investors inv
+            LEFT JOIN investments i ON i.investor_id = inv.investor_id
+            LEFT JOIN startups s ON s.startup_id = i.startup_id
+            LEFT JOIN sectors sec ON sec.sector_id = s.sector_id
+            ${latestMetricJoinSql}
+            ${latestRiskJoinSql}
+            GROUP BY inv.investor_id, inv.investor_name, inv.investor_type, inv.hq_city, inv.risk_preference
+            ORDER BY totalDeployedInr DESC, inv.investor_name
+        `);
+
+        return {
+            items: investorRows.map(mapInvestorRow)
+        };
+    } catch (_error) {
+        return getFallbackInvestorPortfolio();
+    }
+}
+
+export async function getSqlDemo(queryId = 'top-startups') {
+    const demo = sqlDemoDefinitions[queryId] || sqlDemoDefinitions['top-startups'];
+
+    try {
+        const rows = await query(demo.sql);
+
+        return {
+            queryId: demo.queryId,
+            title: demo.title,
+            sql: demo.sql.trim(),
+            explanation: demo.explanation,
+            columns: demo.columns,
+            rows: rows.map((row) => normalizeSqlDemoRow(row, demo.columns))
+        };
+    } catch (_error) {
+        return {
+            queryId: demo.queryId,
+            title: demo.title,
+            sql: demo.sql.trim(),
+            explanation: demo.explanation,
+            columns: demo.columns,
+            rows: demo.fallbackRows()
+        };
+    }
+}
+
 export async function getInvestmentROI(investmentId) {
     try {
         const connection = await pool.getConnection();
@@ -567,8 +627,199 @@ function firstResultSet(rows) {
     return rows;
 }
 
+const sqlDemoDefinitions = {
+    'top-startups': {
+        queryId: 'top-startups',
+        title: 'View Demo: vw_TopStartups',
+        columns: ['startup_name', 'sector_name', 'funding_stage', 'ltv_cac_ratio', 'runway_months', 'risk_score'],
+        explanation: 'Shows why a startup qualifies as investment-ready: strong LTV/CAC, enough runway, and controlled risk.',
+        sql: `
+            SELECT startup_name, sector_name, funding_stage, ltv_cac_ratio, runway_months, risk_score
+            FROM vw_TopStartups
+            ORDER BY ltv_cac_ratio DESC, runway_months DESC
+            LIMIT 8
+        `,
+        fallbackRows: () => fallbackData.recommendationItems.slice(0, 8).map((startup) => ({
+            startup_name: startup.name,
+            sector_name: startup.sector,
+            funding_stage: startup.fundingStage,
+            ltv_cac_ratio: startup.ltvCacRatio,
+            runway_months: fallbackData.startupDetailsById[startup.startupId]?.runway || 0,
+            risk_score: startup.riskScore
+        }))
+    },
+    'burn-alerts': {
+        queryId: 'burn-alerts',
+        title: 'Correlated Subquery: Burn Above Sector Average',
+        columns: ['startup_name', 'sector_name', 'burn_rate_cr', 'sector_avg_burn_cr', 'runway_months'],
+        explanation: 'Finds startups whose burn rate is higher than their own sector average, not the global average.',
+        sql: `
+            SELECT
+                s.startup_name,
+                sec.sector_name,
+                ROUND(fm.burn_rate_inr / 10000000, 2) AS burn_rate_cr,
+                (
+                    SELECT ROUND(AVG(fm_sector.burn_rate_inr) / 10000000, 2)
+                    FROM startups s_sector
+                    JOIN financial_metrics fm_sector
+                      ON fm_sector.startup_id = s_sector.startup_id
+                    WHERE s_sector.sector_id = s.sector_id
+                      AND fm_sector.metric_month = (
+                          SELECT MAX(metric_month)
+                          FROM financial_metrics
+                          WHERE startup_id = s_sector.startup_id
+                      )
+                ) AS sector_avg_burn_cr,
+                fm.runway_months
+            FROM startups s
+            JOIN sectors sec ON sec.sector_id = s.sector_id
+            JOIN financial_metrics fm ON fm.startup_id = s.startup_id
+            WHERE fm.metric_month = (
+                SELECT MAX(metric_month)
+                FROM financial_metrics
+                WHERE startup_id = s.startup_id
+            )
+            HAVING burn_rate_cr > sector_avg_burn_cr
+            ORDER BY burn_rate_cr DESC
+            LIMIT 8
+        `,
+        fallbackRows: () => {
+            const groups = groupBy(fallbackData.startups.map((startup) => fallbackData.startupDetailsById[startup.id]), 'sector');
+
+            return Object.values(fallbackData.startupDetailsById)
+                .map((startup) => ({
+                    startup_name: startup.name,
+                    sector_name: startup.sector,
+                    burn_rate_cr: round(startup.burnRate / 10000000),
+                    sector_avg_burn_cr: round(average(groups[startup.sector].map((item) => item.burnRate)) / 10000000),
+                    runway_months: startup.runway
+                }))
+                .filter((row) => row.burn_rate_cr > row.sector_avg_burn_cr)
+                .sort((a, b) => b.burn_rate_cr - a.burn_rate_cr)
+                .slice(0, 8);
+        }
+    },
+    'investor-exposure': {
+        queryId: 'investor-exposure',
+        title: 'Complex Join: Investor Exposure',
+        columns: ['investor_name', 'startup_count', 'total_deployed_cr', 'avg_risk_score', 'roi_proxy_pct'],
+        explanation: 'Joins investors, investments, startups, financial metrics, and risk analysis to explain portfolio exposure.',
+        sql: `
+            SELECT
+                inv.investor_name,
+                COUNT(DISTINCT i.startup_id) AS startup_count,
+                ROUND(SUM(i.invested_amount_inr) / 10000000, 2) AS total_deployed_cr,
+                ROUND(AVG(COALESCE(rs.latest_risk_score, 50)), 2) AS avg_risk_score,
+                ROUND(AVG(((COALESCE(fm.net_profit_inr, 0) * 12 * 5 * (i.equity_percentage / 100)) / NULLIF(i.invested_amount_inr, 0)) * 100), 2) AS roi_proxy_pct
+            FROM investors inv
+            JOIN investments i ON i.investor_id = inv.investor_id
+            JOIN startups s ON s.startup_id = i.startup_id
+            LEFT JOIN financial_metrics fm ON fm.metric_id = (
+                SELECT fm2.metric_id
+                FROM financial_metrics fm2
+                WHERE fm2.startup_id = s.startup_id
+                ORDER BY fm2.metric_month DESC
+                LIMIT 1
+            )
+            LEFT JOIN (
+                SELECT i2.startup_id, AVG(ra.risk_score) AS latest_risk_score
+                FROM investments i2
+                JOIN risk_analysis ra ON ra.investment_id = i2.investment_id
+                GROUP BY i2.startup_id
+            ) rs ON rs.startup_id = s.startup_id
+            GROUP BY inv.investor_id, inv.investor_name
+            ORDER BY total_deployed_cr DESC
+        `,
+        fallbackRows: () => getFallbackInvestorPortfolio().items.map((investor) => ({
+            investor_name: investor.name,
+            startup_count: investor.startupCount,
+            total_deployed_cr: round(investor.totalDeployedInr / 10000000),
+            avg_risk_score: investor.avgRiskScore,
+            roi_proxy_pct: investor.roiProxy
+        }))
+    }
+};
+
+function normalizeSqlDemoRow(row, columns) {
+    return columns.reduce((normalized, column) => {
+        normalized[column] = row[column];
+        return normalized;
+    }, {});
+}
+
+function mapInvestorRow(row) {
+    return {
+        id: Number(row.id || 0),
+        name: row.name,
+        investorType: row.investorType,
+        hqCity: row.hqCity,
+        riskPreference: row.riskPreference,
+        startupCount: Number(row.startupCount || 0),
+        totalDeployedInr: Number(row.totalDeployedInr || 0),
+        avgRiskScore: Number(row.avgRiskScore || 0),
+        avgLtvCac: Number(row.avgLtvCac || 0),
+        roiProxy: Number(row.roiProxy || 0),
+        sectors: String(row.sectors || '').split(', ').filter(Boolean),
+        startups: String(row.startups || '').split(', ').filter(Boolean)
+    };
+}
+
+function getFallbackInvestorPortfolio() {
+    const investorSeed = [
+        ['Deccan Spark Ventures', 'VC', 'Bengaluru', 'High'],
+        ['ArthaLeap Capital', 'VC', 'Mumbai', 'Medium'],
+        ['Monsoon Peak Ventures', 'Angel', 'Gurugram', 'Medium'],
+        ['Trident Horizon Fund', 'Corporate VC', 'Hyderabad', 'Low'],
+        ['Lotus Grid Capital', 'Family Office', 'Pune', 'Low'],
+        ['Banyan Catalyst Partners', 'VC', 'Chennai', 'High']
+    ];
+    const startups = Object.values(fallbackData.startupDetailsById);
+    const items = investorSeed.map(([name, investorType, hqCity, riskPreference], investorIndex) => {
+        const portfolio = startups.filter((startup, startupIndex) => startupIndex % investorSeed.length === investorIndex);
+        const totalDeployedInr = portfolio.reduce((sum, startup) => sum + startup.totalFunding, 0);
+
+        return {
+            id: investorIndex + 1,
+            name,
+            investorType,
+            hqCity,
+            riskPreference,
+            startupCount: portfolio.length,
+            totalDeployedInr,
+            avgRiskScore: round(average(portfolio.map((startup) => startup.riskScore))),
+            avgLtvCac: round(average(portfolio.map((startup) => startup.ltv / startup.cac))),
+            roiProxy: round(average(portfolio.map((startup) => {
+                const latestRevenue = startup.history[startup.history.length - 1] || 0;
+                const monthlyProfit = latestRevenue - startup.burnRate;
+                return ((monthlyProfit * 12 * 5 * 0.08) / Math.max(1, startup.totalFunding)) * 100;
+            }))),
+            sectors: [...new Set(portfolio.map((startup) => startup.sector))].sort(),
+            startups: portfolio.map((startup) => startup.name)
+        };
+    });
+
+    return { items };
+}
+
 function round(value) {
     return Number(Number(value || 0).toFixed(2));
+}
+
+function average(values) {
+    if (!values.length) {
+        return 0;
+    }
+
+    return values.reduce((sum, value) => sum + Number(value || 0), 0) / values.length;
+}
+
+function groupBy(items, key) {
+    return items.reduce((groups, item) => {
+        const value = item[key] || 'Unknown';
+        groups[value] = groups[value] || [];
+        groups[value].push(item);
+        return groups;
+    }, {});
 }
 
 function filterFallbackStartups(filters) {

@@ -31,6 +31,10 @@ function buildQueryString(filters = {}) {
 }
 
 export const investmentApi = {
+    getHealth() {
+        return apiGet('/api/health');
+    },
+
     getDashboard() {
         return apiGet('/api/dashboard');
     },
@@ -45,6 +49,14 @@ export const investmentApi = {
 
     getRecommendations() {
         return apiGet('/api/recommendations');
+    },
+
+    getInvestors() {
+        return apiGet('/api/investors');
+    },
+
+    getSqlDemo(queryId) {
+        return apiGet(`/api/sql-demo/${encodeURIComponent(queryId)}`);
     },
 
     getAnalytics() {

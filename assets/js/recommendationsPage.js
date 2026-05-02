@@ -3,6 +3,7 @@ import { investmentApi } from './api.js';
 const state = {
     items: [],
     sectors: [],
+    selectedStartupId: null,
     filters: {
         search: '',
         sector: '',
@@ -34,7 +35,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderRecommendations();
 
         if (state.items[0]) {
+            state.selectedStartupId = state.items[0].startupId;
             renderExplanation(state.items[0]);
+            renderRecommendations();
         }
     } catch (error) {
         renderPageError('.main-content', error.message);
@@ -88,7 +91,13 @@ function bindControls() {
         const startup = state.items.find((item) => String(item.startupId) === button.dataset.explainId);
 
         if (startup) {
+            state.selectedStartupId = startup.startupId;
             renderExplanation(startup);
+            renderRecommendations();
+            document.getElementById(`score-explanation-${startup.startupId}`)?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
         }
     });
 }
@@ -171,6 +180,7 @@ function renderRecommendationCard(startup, displayRank) {
     const signalClass = `signal-${startup.signal.toLowerCase()}`;
     const scoreWidth = Math.min(100, Math.max(0, startup.decisionScore * 10));
     const runway = Number(startup.runway || 0);
+    const isSelected = String(state.selectedStartupId) === String(startup.startupId);
 
     return `
         <article class="glass-card recommendation-card ${signalClass}">
@@ -196,12 +206,30 @@ function renderRecommendationCard(startup, displayRank) {
                     ${renderMetric('Runway', runway ? `${runway.toFixed(1)} mo` : '-', 'Cash buffer')}
                     ${renderMetric('Funding', startup.totalFunding ? formatCompactCurrency(startup.totalFunding) : '-', 'Capital raised')}
                 </div>
+                ${isSelected ? renderInlineExplanation(startup) : ''}
             </div>
             <div class="recommendation-actions">
-                <button class="btn btn-primary" type="button" data-explain-id="${startup.startupId}">Explain Score</button>
-                <a href="/pages/details.html?id=${startup.startupId}" class="btn btn-secondary">Open Details</a>
+                <button class="btn btn-primary" type="button" data-explain-id="${startup.startupId}">${isSelected ? 'Hide/Refresh Score' : 'Explain Score'}</button>
+                <a href="/details?id=${startup.startupId}" class="btn btn-secondary">Open Details</a>
             </div>
         </article>
+    `;
+}
+
+function renderInlineExplanation(startup) {
+    const runway = Number(startup.runway || 0);
+    const unitScore = Math.min(50, startup.ltvCacRatio * 8.33);
+    const riskScore = Math.max(0, (100 - startup.riskScore) * 0.30);
+    const runwayScore = Math.min(20, runway * 1.1);
+
+    return `
+        <div id="score-explanation-${startup.startupId}" class="inline-score-explanation">
+            <strong>Score formula breakdown</strong>
+            <div><span>LTV/CAC contribution</span><em>${unitScore.toFixed(1)} / 50</em></div>
+            <div><span>Risk control contribution</span><em>${riskScore.toFixed(1)} / 30</em></div>
+            <div><span>Runway and validation contribution</span><em>${runwayScore.toFixed(1)} / 20</em></div>
+            <p>Final score becomes ${startup.decisionScore.toFixed(2)}/10, so the decision engine marks ${startup.name} as ${startup.signal}.</p>
+        </div>
     `;
 }
 

@@ -43,6 +43,30 @@
       "destination": "/pages/recommendations.html"
     },
     {
+      "source": "/investors.html",
+      "destination": "/pages/investors.html"
+    },
+    {
+      "source": "/investors",
+      "destination": "/pages/investors.html"
+    },
+    {
+      "source": "/compare.html",
+      "destination": "/pages/compare.html"
+    },
+    {
+      "source": "/compare",
+      "destination": "/pages/compare.html"
+    },
+    {
+      "source": "/sql-demo.html",
+      "destination": "/pages/sql-demo.html"
+    },
+    {
+      "source": "/sql-demo",
+      "destination": "/pages/sql-demo.html"
+    },
+    {
       "source": "/analytics.html",
       "destination": "/pages/analytics.html"
     },

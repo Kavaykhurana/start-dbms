@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Safe SQL runner demo for DBMS viva with views, complex joins, correlated subqueries, and live/fallback result tables.">
+    <meta name="theme-color" content="#07111d">
+    <title>SQL Demo | Startup Investment System</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">VENTURE ANALYTICS</div>
+            <ul class="nav-links">
+                <li><a href="/pages/index.html">Dashboard</a></li>
+                <li><a href="/pages/startups.html">Startups</a></li>
+                <li><a href="/pages/recommendations.html">Recommendations</a></li>
+                <li><a href="/pages/investors.html">Investors</a></li>
+                <li><a href="/pages/compare.html">Compare</a></li>
+                <li><a href="/pages/sql-demo.html" class="active">SQL Demo</a></li>
+                <li><a href="/pages/analytics.html">Analytics</a></li>
+                <li><a href="/pages/dbms.html">DBMS Docs</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h1>SQL Runner Demo</h1>
+                    <p class="page-subtitle">Run safe preset SQL demonstrations and show copyable queries during viva.</p>
+                </div>
+                <a class="btn btn-secondary" href="/pages/dbms.html">Open Full DBMS Docs</a>
+            </header>
+
+            <section class="glass-card sql-demo-hero">
+                <div>
+                    <span class="system-label">API → SQL → result table</span>
+                    <h2>Make the database engine visible, not hidden behind charts.</h2>
+                    <p>Select a query, click run, and explain the output. If MySQL is connected, this page returns SQL results. If not, it uses the bundled 50-startup fallback dataset and still shows the same query logic.</p>
+                </div>
+                <div id="sql-health-card" class="sql-health-card"></div>
+            </section>
+
+            <section class="glass-card sql-runner-card">
+                <div class="sql-runner-toolbar">
+                    <label>
+                        Query to demonstrate
+                        <select id="sql-query-select">
+                            <option value="top-startups">View: vw_TopStartups</option>
+                            <option value="burn-alerts">Correlated subquery: burn above sector average</option>
+                            <option value="investor-exposure">Complex join: investor exposure</option>
+                        </select>
+                    </label>
+                    <button id="sql-run-button" class="btn btn-primary" type="button">Run Query</button>
+                    <button id="sql-copy-button" class="btn btn-secondary" type="button">Copy SQL</button>
+                </div>
+                <div id="sql-demo-explanation" class="sql-demo-explanation"></div>
+                <pre id="sql-demo-code" class="code-panel">Loading SQL...</pre>
+            </section>
+
+            <section class="glass-card" style="margin-top: 24px;">
+                <div class="section-heading">
+                    <div>
+                        <h3 id="sql-result-title">Result Table</h3>
+                        <p id="sql-result-helper">Run a query to see rows.</p>
+                    </div>
+                    <span class="detail-badge">Teacher-friendly output</span>
+                </div>
+                <div id="sql-demo-result" class="table-container"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script type="module" src="../assets/js/sqlDemoPage.js"></script>
+</body>
+</html>

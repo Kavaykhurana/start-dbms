@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Compare Indian startups side-by-side using CAC, LTV, burn rate, runway, risk, valuation, funding, and DBMS recommendation logic.">
+    <meta name="theme-color" content="#07111d">
+    <title>Compare Startups | Startup Investment System</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">VENTURE ANALYTICS</div>
+            <ul class="nav-links">
+                <li><a href="/pages/index.html">Dashboard</a></li>
+                <li><a href="/pages/startups.html">Startups</a></li>
+                <li><a href="/pages/recommendations.html">Recommendations</a></li>
+                <li><a href="/pages/investors.html">Investors</a></li>
+                <li><a href="/pages/compare.html" class="active">Compare</a></li>
+                <li><a href="/pages/sql-demo.html">SQL Demo</a></li>
+                <li><a href="/pages/analytics.html">Analytics</a></li>
+                <li><a href="/pages/dbms.html">DBMS Docs</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h1>Startup Comparison</h1>
+                    <p class="page-subtitle">Pick three startups and explain why one deserves investment before the others.</p>
+                </div>
+                <a class="btn btn-primary" href="/pages/recommendations.html">Open Recommendations</a>
+            </header>
+
+            <section class="glass-card compare-hero">
+                <div>
+                    <span class="system-label">Decision matrix</span>
+                    <h2>Compare normalized rows without opening multiple tabs.</h2>
+                    <p>The comparison uses the same database columns as the details page: startup master data, funding transactions, financial metrics, and risk analysis.</p>
+                </div>
+                <div class="compare-selector-grid">
+                    <label>Startup A<select id="compare-a"></select></label>
+                    <label>Startup B<select id="compare-b"></select></label>
+                    <label>Startup C<select id="compare-c"></select></label>
+                </div>
+            </section>
+
+            <section id="comparison-summary" class="comparison-summary"></section>
+            <section id="comparison-grid" class="comparison-grid"></section>
+        </main>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script type="module" src="../assets/js/comparePage.js"></script>
+</body>
+</html>

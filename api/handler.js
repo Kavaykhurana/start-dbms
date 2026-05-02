@@ -2,8 +2,10 @@ import {
     getAnalyticsData,
     getDashboardData,
     getHealthCheck,
+    getInvestorPortfolio,
     getInvestmentROI,
     getRecommendations,
+    getSqlDemo,
     getStartupDetails,
     getStartups
 } from '../backend/repository.js';
@@ -47,6 +49,15 @@ export default async function handler(req, res) {
 
         if (pathname === '/recommendations') {
             return res.status(200).json(await getRecommendations());
+        }
+
+        if (pathname === '/investors') {
+            return res.status(200).json(await getInvestorPortfolio());
+        }
+
+        const sqlDemoMatch = pathname.match(/^\/sql-demo\/([a-z0-9-]+)$/);
+        if (sqlDemoMatch) {
+            return res.status(200).json(await getSqlDemo(sqlDemoMatch[1]));
         }
 
         if (pathname === '/analytics') {

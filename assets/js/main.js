@@ -4,18 +4,45 @@ const THEME_STORAGE_KEY = 'ventureAnalytics.theme';
 applyTheme(getStoredTheme());
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Set active link in sidebar
-    const currentPath = window.location.pathname;
+    const currentPath = normalizePath(window.location.pathname);
     const navLinks = document.querySelectorAll('.nav-links a');
     
     navLinks.forEach(link => {
-        if (currentPath.includes(link.getAttribute('href'))) {
+        const hrefPath = normalizePath(new URL(link.href, window.location.origin).pathname);
+
+        if (isActiveRoute(currentPath, hrefPath)) {
             link.classList.add('active');
         }
     });
 
+    mountAcademicDataNote();
+    mountTeacherDemo();
     mountThemeToggle();
 });
+
+function normalizePath(pathname) {
+    if (pathname === '/') {
+        return '/pages/index.html';
+    }
+
+    return pathname.replace(/\/$/, '');
+}
+
+function isActiveRoute(currentPath, hrefPath) {
+    const cleanRoutes = {
+        '/pages/index.html': ['/dashboard', '/index.html'],
+        '/pages/startups.html': ['/startups', '/startups.html'],
+        '/pages/details.html': ['/details', '/details.html'],
+        '/pages/recommendations.html': ['/recommendations', '/recommendations.html'],
+        '/pages/investors.html': ['/investors', '/investors.html'],
+        '/pages/compare.html': ['/compare', '/compare.html'],
+        '/pages/sql-demo.html': ['/sql-demo', '/sql-demo.html'],
+        '/pages/analytics.html': ['/analytics', '/analytics.html'],
+        '/pages/dbms.html': ['/dbms', '/dbms.html']
+    };
+
+    return currentPath === hrefPath || (cleanRoutes[hrefPath] || []).includes(currentPath);
+}
 
 function getStoredTheme() {
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
@@ -63,6 +90,91 @@ function mountThemeToggle() {
     syncButton();
     wrapper.appendChild(button);
     sidebar.appendChild(wrapper);
+}
+
+function mountAcademicDataNote() {
+    const mainContent = document.querySelector('.main-content');
+
+    if (!mainContent || document.querySelector('.academic-note')) {
+        return;
+    }
+
+    const note = document.createElement('div');
+    note.className = 'academic-note compact';
+    note.innerHTML = 'Academic demo data: the 50 Indian startup, investor, market, and risk records are simulated for DBMS evaluation; the API can switch to hosted MySQL when Vercel env variables are added.';
+
+    const header = mainContent.querySelector('.header');
+
+    if (header) {
+        header.insertAdjacentElement('afterend', note);
+    } else {
+        mainContent.prepend(note);
+    }
+}
+
+function mountTeacherDemo() {
+    const sidebar = document.querySelector('.sidebar');
+
+    if (!sidebar || document.getElementById('teacher-demo-button')) {
+        return;
+    }
+
+    const button = document.createElement('button');
+    button.id = 'teacher-demo-button';
+    button.className = 'teacher-demo-button';
+    button.type = 'button';
+    button.textContent = 'Teacher Demo Mode';
+
+    const overlay = document.createElement('div');
+    overlay.id = 'teacher-demo-modal';
+    overlay.className = 'modal-backdrop is-hidden';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.innerHTML = `
+        <div class="modal glass-card teacher-demo-modal" role="dialog" aria-modal="true" aria-labelledby="teacher-demo-title">
+            <div class="section-heading">
+                <div>
+                    <span class="system-label">5-minute viva flow</span>
+                    <h2 id="teacher-demo-title">Teacher Demo Mode</h2>
+                    <p>Open these sections in order and explain the DBMS concept behind each screen.</p>
+                </div>
+                <button class="icon-button" id="teacher-demo-close" type="button" aria-label="Close teacher demo">×</button>
+            </div>
+            <div class="teacher-demo-grid">
+                ${renderDemoStep('1', 'Dashboard', '/dashboard', 'Show KPIs, charts, sector growth, and how API aggregates SQL rows.')}
+                ${renderDemoStep('2', 'Startups', '/startups', 'Show master table records, filters, Add Startup UI, risk and runway columns.')}
+                ${renderDemoStep('3', 'Recommendations', '/recommendations', 'Click Explain Score and connect LTV/CAC, runway, and risk to the procedure.')}
+                ${renderDemoStep('4', 'Investors', '/investors', 'Explain investor funding source table and investment transaction joins.')}
+                ${renderDemoStep('5', 'Compare', '/compare', 'Compare three startups side-by-side using the same normalized metrics.')}
+                ${renderDemoStep('6', 'SQL Demo', '/sql-demo', 'Run preset SQL views, joins, and correlated subqueries with result tables.')}
+                ${renderDemoStep('7', 'DBMS Docs', '/dbms', 'Show ER diagram, normalization, tables, triggers, procedures, and PL/SQL.')}
+            </div>
+        </div>
+    `;
+
+    button.addEventListener('click', () => {
+        overlay.classList.remove('is-hidden');
+        overlay.setAttribute('aria-hidden', 'false');
+    });
+
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay || event.target.closest('#teacher-demo-close')) {
+            overlay.classList.add('is-hidden');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+    });
+
+    sidebar.appendChild(button);
+    document.body.appendChild(overlay);
+}
+
+function renderDemoStep(step, title, href, description) {
+    return `
+        <a class="teacher-demo-step" href="${href}">
+            <strong>${step}</strong>
+            <span>${title}</span>
+            <small>${description}</small>
+        </a>
+    `;
 }
 
 // Helper function to format currency

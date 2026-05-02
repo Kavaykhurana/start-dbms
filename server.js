@@ -6,8 +6,10 @@ import {
     getAnalyticsData,
     getDashboardData,
     getHealthCheck,
+    getInvestorPortfolio,
     getInvestmentROI,
     getRecommendations,
+    getSqlDemo,
     getStartupDetails,
     getStartups
 } from './backend/repository.js';
@@ -33,6 +35,9 @@ const pageRoutes = {
     '/startups': 'startups.html',
     '/details': 'details.html',
     '/recommendations': 'recommendations.html',
+    '/investors': 'investors.html',
+    '/compare': 'compare.html',
+    '/sql-demo': 'sql-demo.html',
     '/analytics': 'analytics.html',
     '/dbms': 'dbms.html'
 };
@@ -76,6 +81,16 @@ app.get('/api/startups/:id', asyncHandler(async (req, res) => {
 
 app.get('/api/recommendations', asyncHandler(async (_req, res) => {
     const payload = await getRecommendations();
+    res.json(payload);
+}));
+
+app.get('/api/investors', asyncHandler(async (_req, res) => {
+    const payload = await getInvestorPortfolio();
+    res.json(payload);
+}));
+
+app.get('/api/sql-demo/:queryId', asyncHandler(async (req, res) => {
+    const payload = await getSqlDemo(req.params.queryId);
     res.json(payload);
 }));
 

@@ -1522,6 +1522,376 @@ html[data-theme="light"] .code-panel {
     color: #0f3b2e;
 }
 
+.academic-note {
+    border: 1px solid rgba(0, 210, 255, 0.18);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    background:
+        linear-gradient(90deg, rgba(0, 210, 255, 0.10), rgba(0, 255, 136, 0.05)),
+        rgba(255, 255, 255, 0.045);
+}
+
+.academic-note.compact {
+    font-size: 0.9rem;
+    margin-top: -18px;
+}
+
+.academic-note code {
+    color: var(--accent-blue);
+}
+
+.teacher-demo-button {
+    border: 1px solid rgba(0, 255, 136, 0.24);
+    border-radius: 10px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-weight: 800;
+    margin-top: 18px;
+    min-height: 44px;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.16), rgba(0, 255, 136, 0.10));
+    transition:
+        transform var(--transition-fast),
+        border-color var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.teacher-demo-button:hover {
+    border-color: rgba(0, 255, 136, 0.42);
+    transform: translate3d(0, -1px, 0);
+}
+
+.teacher-demo-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.teacher-demo-step {
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    display: grid;
+    gap: 7px;
+    min-height: 148px;
+    padding: 16px;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.045);
+    transition:
+        transform var(--transition-fast),
+        border-color var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.teacher-demo-step:hover {
+    background: rgba(0, 210, 255, 0.08);
+    border-color: rgba(0, 210, 255, 0.3);
+    transform: translate3d(0, -2px, 0);
+}
+
+.teacher-demo-step strong {
+    color: var(--accent-blue);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+}
+
+.teacher-demo-step span {
+    font-weight: 800;
+}
+
+.teacher-demo-step small {
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.inline-score-explanation {
+    border: 1px solid rgba(0, 210, 255, 0.24);
+    border-radius: 12px;
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 14px;
+    background:
+        radial-gradient(circle at top right, rgba(0, 210, 255, 0.14), transparent 46%),
+        rgba(255, 255, 255, 0.045);
+}
+
+.inline-score-explanation strong {
+    color: var(--accent-blue);
+}
+
+.inline-score-explanation div {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.inline-score-explanation span,
+.inline-score-explanation p {
+    color: var(--text-secondary);
+}
+
+.inline-score-explanation em {
+    color: var(--text-primary);
+    font-style: normal;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.inline-score-explanation p {
+    line-height: 1.5;
+}
+
+.investor-grid {
+    display: grid;
+    gap: 22px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.investor-card {
+    min-height: 100%;
+}
+
+.investor-card-header {
+    align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.investor-card-header h2 {
+    font-size: 1.45rem;
+}
+
+.investor-card-header p {
+    color: var(--text-secondary);
+    margin-top: 6px;
+}
+
+.investor-card-header > strong {
+    color: var(--accent-blue);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.35rem;
+    white-space: nowrap;
+}
+
+.investor-startup-list {
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 16px;
+}
+
+.investor-startup-list span {
+    border: 1px solid rgba(0, 255, 136, 0.18);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    padding: 7px 9px;
+    background: rgba(0, 255, 136, 0.05);
+}
+
+.compare-hero,
+.sql-demo-hero {
+    display: grid;
+    gap: 28px;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.7fr);
+    margin-bottom: 24px;
+}
+
+.compare-hero h2,
+.sql-demo-hero h2 {
+    font-size: clamp(2rem, 3vw, 3.4rem);
+    line-height: 1.04;
+}
+
+.compare-hero p,
+.sql-demo-hero p,
+.sql-health-card p,
+.sql-demo-explanation span {
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-top: 12px;
+}
+
+.compare-selector-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.compare-selector-grid label,
+.sql-runner-toolbar label {
+    color: var(--text-secondary);
+    display: grid;
+    font-size: 0.84rem;
+    font-weight: 700;
+    gap: 8px;
+}
+
+.comparison-summary {
+    margin-bottom: 22px;
+}
+
+.comparison-summary-card {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.comparison-summary-card div {
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.comparison-summary-card span,
+.comparison-summary-card small {
+    color: var(--text-secondary);
+    display: block;
+}
+
+.comparison-summary-card strong {
+    color: var(--text-primary);
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.15rem;
+    margin: 6px 0;
+}
+
+.comparison-grid {
+    display: grid;
+    gap: 22px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.comparison-card {
+    display: grid;
+    gap: 16px;
+}
+
+.comparison-rank {
+    color: var(--accent-green);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.comparison-title {
+    align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.comparison-title h2 {
+    font-size: 1.45rem;
+}
+
+.comparison-title p,
+.comparison-metric-list span,
+.comparison-metric-list small,
+.comparison-verdict small {
+    color: var(--text-secondary);
+}
+
+.comparison-title strong {
+    color: var(--accent-blue);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.65rem;
+}
+
+.comparison-verdict {
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 13px;
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.comparison-verdict span,
+.comparison-verdict small,
+.comparison-metric-list span,
+.comparison-metric-list strong,
+.comparison-metric-list small {
+    display: block;
+}
+
+.comparison-verdict span {
+    font-weight: 900;
+}
+
+.comparison-metric-list {
+    display: grid;
+    gap: 10px;
+}
+
+.comparison-metric-list div {
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    display: grid;
+    gap: 4px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.comparison-metric-list strong {
+    color: var(--text-primary);
+}
+
+.sql-health-card {
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 14px;
+    padding: 20px;
+    background:
+        radial-gradient(circle at top right, rgba(0, 255, 136, 0.16), transparent 48%),
+        rgba(255, 255, 255, 0.045);
+}
+
+.sql-health-card strong {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.55rem;
+    line-height: 1.1;
+}
+
+.sql-runner-toolbar {
+    align-items: end;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: minmax(260px, 1fr) auto auto;
+}
+
+.sql-demo-explanation {
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    margin-top: 18px;
+    padding: 14px;
+    background: rgba(0, 210, 255, 0.055);
+}
+
+.sql-demo-explanation strong,
+.sql-demo-explanation span {
+    display: block;
+}
+
+.sql-demo-explanation strong {
+    color: var(--accent-blue);
+}
+
+.sql-result-table {
+    margin-top: 0;
+}
+
 canvas {
     opacity: 0.96;
 }
@@ -1661,14 +2031,20 @@ canvas {
     }
 
     .recommendation-hero,
+    .compare-hero,
+    .sql-demo-hero,
     .recommendation-workspace,
     .recommendation-controls,
+    .sql-runner-toolbar,
     .recommendation-list .recommendation-card {
         grid-template-columns: 1fr;
     }
 
     .recommendation-summary,
-    .recommendation-metrics {
+    .recommendation-metrics,
+    .comparison-summary-card,
+    .comparison-grid,
+    .investor-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -1723,7 +2099,10 @@ canvas {
     .recommendation-metrics,
     .startup-summary-grid,
     .detail-intelligence-grid,
-    .dbms-proof-grid {
+    .dbms-proof-grid,
+    .comparison-summary-card,
+    .comparison-grid,
+    .investor-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1737,8 +2116,15 @@ canvas {
     }
 
     .form-grid,
-    .detail-list div {
+    .detail-list div,
+    .comparison-title,
+    .investor-card-header {
         grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+
+    .sql-runner-toolbar .btn {
+        width: 100%;
     }
 }
 
