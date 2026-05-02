@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td>${startup.fundingStage}</td>
                 <td>${formatCurrency(startup.totalFunding)}</td>
                 <td><span class="badge ${getRiskBadge(startup.riskLevel)}">${startup.riskLevel}</span></td>
-                <td><a href="details.html?id=${startup.id}" class="btn" style="background: rgba(255,255,255,0.1); color: white;">Details</a></td>
+                <td><a href="/pages/details.html?id=${startup.id}" class="btn" style="background: rgba(255,255,255,0.1); color: white;">Details</a></td>
             `;
             tableBody.appendChild(row);
         });

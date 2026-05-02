@@ -9,6 +9,26 @@
     {
       "source": "/",
       "destination": "/pages/index.html"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/pages/index.html"
+    },
+    {
+      "source": "/startups.html",
+      "destination": "/pages/startups.html"
+    },
+    {
+      "source": "/details.html",
+      "destination": "/pages/details.html"
+    },
+    {
+      "source": "/recommendations.html",
+      "destination": "/pages/recommendations.html"
+    },
+    {
+      "source": "/analytics.html",
+      "destination": "/pages/analytics.html"
     }
   ]
 }
