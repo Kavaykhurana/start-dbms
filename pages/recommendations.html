@@ -21,12 +21,83 @@
 
         <main class="main-content">
             <header class="header">
-                <h1>Investment Recommendations</h1>
+                <div>
+                    <h1>Investment Recommendations</h1>
+                    <p class="page-subtitle">Ranked output from the DBMS scoring procedure using unit economics, runway, and risk.</p>
+                </div>
+                <div class="user-profile">
+                    <span id="current-date">May 03, 2026</span>
+                </div>
             </header>
 
-            <div id="recommendation-list">
-                <!-- Populated by JS -->
-            </div>
+            <section class="glass-card recommendation-hero">
+                <div>
+                    <span class="system-label">sp_GetRecommendation decision engine</span>
+                    <h2>Shortlist the best startups before opening the SQL tables.</h2>
+                    <p>The page converts normalized DBMS records into an investor-ready recommendation queue. Every score can be traced back to FinancialMetrics, Investments, RiskAnalysis, MarketData, and Partnerships.</p>
+                    <div class="formula-strip">
+                        <span>LTV/CAC strength</span>
+                        <span>Runway buffer</span>
+                        <span>Risk penalty</span>
+                        <span>Market validation</span>
+                    </div>
+                </div>
+                <div id="recommendation-summary" class="recommendation-summary">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <section class="glass-card recommendation-controls">
+                <input id="recommendation-search" type="search" placeholder="Search startup, sector, or city">
+                <select id="recommendation-sector">
+                    <option value="">All sectors</option>
+                </select>
+                <select id="recommendation-signal">
+                    <option value="">All signals</option>
+                    <option value="INVEST">Invest only</option>
+                    <option value="WATCH">Watch only</option>
+                    <option value="AVOID">Avoid only</option>
+                </select>
+                <select id="recommendation-sort">
+                    <option value="score">Sort by score</option>
+                    <option value="ltv">Sort by LTV/CAC</option>
+                    <option value="risk">Sort by lowest risk</option>
+                    <option value="runway">Sort by runway</option>
+                </select>
+                <button id="recommendation-reset" class="btn btn-secondary" type="button">Reset</button>
+            </section>
+
+            <section class="recommendation-workspace">
+                <div>
+                    <div class="section-heading">
+                        <div>
+                            <h3>Ranked Startup Queue</h3>
+                            <p id="recommendation-count">Loading recommendations...</p>
+                        </div>
+                    </div>
+                    <div id="recommendation-list" class="recommendation-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <aside class="recommendation-sidebar">
+                    <div class="glass-card">
+                        <h3>Selected Score Explanation</h3>
+                        <div id="recommendation-explainer" class="selected-explainer">
+                            Select any startup to see the viva explanation for why it is ranked.
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <h3>SQL Evidence</h3>
+                        <div class="sql-evidence-list">
+                            <div><strong>View</strong><span>vw_TopStartups filters high LTV/CAC and runway.</span></div>
+                            <div><strong>Procedure</strong><span>sp_GetRecommendation ranks the final Top 5.</span></div>
+                            <div><strong>Trigger</strong><span>trig_RiskUpdate refreshes score when burn/churn changes.</span></div>
+                            <div><strong>Join</strong><span>Startup + Investment + Investor + Metrics explains ROI.</span></div>
+                        </div>
+                        <a href="/pages/dbms.html" class="btn btn-secondary full-width-action">Show SQL Queries</a>
+                    </div>
+                </aside>
+            </section>
         </main>
     </div>
 

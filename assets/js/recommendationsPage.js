@@ -1,58 +1,275 @@
 import { investmentApi } from './api.js';
 
+const state = {
+    items: [],
+    sectors: [],
+    filters: {
+        search: '',
+        sector: '',
+        signal: '',
+        sort: 'score'
+    }
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
-    const container = document.getElementById('recommendation-list');
+    setCurrentDate();
 
     try {
-        const payload = await investmentApi.getRecommendations();
+        const [payload, startupListing] = await Promise.all([
+            investmentApi.getRecommendations(),
+            investmentApi.getStartups()
+        ]);
 
-        if (!payload.items.length) {
-            container.innerHTML = `
-                <div class="glass-card">
-                    <h3 style="margin-bottom: 10px;">No Recommendations Available</h3>
-                    <p style="color: var(--text-secondary);">Load seed data into MySQL to generate ranked startup recommendations.</p>
-                </div>
-            `;
-            return;
+        const startupMap = new Map((startupListing.items || []).map((startup) => [startup.id, startup]));
+
+        state.items = (payload.items || []).map((item) => ({
+            ...item,
+            ...(startupMap.get(item.startupId) || {})
+        }));
+        state.sectors = startupListing.sectors || [...new Set(state.items.map((item) => item.sector))].sort();
+
+        populateSectorFilter();
+        bindControls();
+        renderSummary();
+        renderRecommendations();
+
+        if (state.items[0]) {
+            renderExplanation(state.items[0]);
         }
-
-        container.innerHTML = '';
-
-        payload.items.forEach((startup) => {
-            const card = document.createElement('div');
-            card.className = 'glass-card recommendation-card';
-            card.style.marginBottom = '20px';
-            card.style.display = 'flex';
-            card.style.justifyContent = 'space-between';
-            card.style.alignItems = 'center';
-
-            const signalColor = startup.signal === 'INVEST'
-                ? 'var(--accent-green)'
-                : startup.signal === 'WATCH'
-                    ? 'var(--accent-yellow)'
-                    : 'var(--accent-red)';
-
-            card.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 30px;">
-                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-secondary);">#${startup.rank}</div>
-                    <div>
-                        <h2 style="margin-bottom: 5px;">${startup.name}</h2>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 6px;">${startup.sector} • ${startup.fundingStage}</p>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">${startup.reason}</p>
-                    </div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 5px;">Decision Score</div>
-                    <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-blue);">${startup.decisionScore.toFixed(2)}/10</div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">LTV/CAC ${startup.ltvCacRatio.toFixed(2)} • Risk ${startup.riskScore.toFixed(0)}</div>
-                    <div style="font-weight: 700; color: ${signalColor}; margin-top: 5px;">${startup.signal}</div>
-                    <a href="/pages/details.html?id=${startup.startupId}" class="btn btn-secondary" style="margin-top: 12px;">Open Details</a>
-                </div>
-            `;
-
-            container.appendChild(card);
-        });
     } catch (error) {
         renderPageError('.main-content', error.message);
     }
 });
+
+function bindControls() {
+    const searchInput = document.getElementById('recommendation-search');
+    const sectorSelect = document.getElementById('recommendation-sector');
+    const signalSelect = document.getElementById('recommendation-signal');
+    const sortSelect = document.getElementById('recommendation-sort');
+    const resetButton = document.getElementById('recommendation-reset');
+    const list = document.getElementById('recommendation-list');
+
+    searchInput.addEventListener('input', () => {
+        state.filters.search = searchInput.value.trim().toLowerCase();
+        renderRecommendations();
+    });
+
+    sectorSelect.addEventListener('change', () => {
+        state.filters.sector = sectorSelect.value;
+        renderRecommendations();
+    });
+
+    signalSelect.addEventListener('change', () => {
+        state.filters.signal = signalSelect.value;
+        renderRecommendations();
+    });
+
+    sortSelect.addEventListener('change', () => {
+        state.filters.sort = sortSelect.value;
+        renderRecommendations();
+    });
+
+    resetButton.addEventListener('click', () => {
+        state.filters = { search: '', sector: '', signal: '', sort: 'score' };
+        searchInput.value = '';
+        sectorSelect.value = '';
+        signalSelect.value = '';
+        sortSelect.value = 'score';
+        renderRecommendations();
+    });
+
+    list.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-explain-id]');
+
+        if (!button) {
+            return;
+        }
+
+        const startup = state.items.find((item) => String(item.startupId) === button.dataset.explainId);
+
+        if (startup) {
+            renderExplanation(startup);
+        }
+    });
+}
+
+function populateSectorFilter() {
+    const sectorSelect = document.getElementById('recommendation-sector');
+
+    state.sectors.forEach((sector) => {
+        const option = document.createElement('option');
+        option.value = sector;
+        option.textContent = sector;
+        sectorSelect.appendChild(option);
+    });
+}
+
+function renderSummary() {
+    const container = document.getElementById('recommendation-summary');
+    const investCount = state.items.filter((item) => item.signal === 'INVEST').length;
+    const watchCount = state.items.filter((item) => item.signal === 'WATCH').length;
+    const avgScore = average(state.items.map((item) => item.decisionScore));
+    const bestStartup = [...state.items].sort((a, b) => b.decisionScore - a.decisionScore)[0];
+
+    container.innerHTML = `
+        ${renderSummaryTile('Top pick', bestStartup?.name || '-', bestStartup ? `${bestStartup.sector} • ${bestStartup.signal}` : 'Waiting for data')}
+        ${renderSummaryTile('Avg score', `${avgScore.toFixed(2)}/10`, 'Across ranked startup queue')}
+        ${renderSummaryTile('Invest calls', `${investCount}`, 'Ready for due diligence')}
+        ${renderSummaryTile('Watch calls', `${watchCount}`, 'Monitor before funding')}
+    `;
+}
+
+function renderRecommendations() {
+    const list = document.getElementById('recommendation-list');
+    const count = document.getElementById('recommendation-count');
+    const items = getFilteredItems();
+
+    count.textContent = `${items.length} startups shown from ${state.items.length} recommendations`;
+
+    if (!items.length) {
+        list.innerHTML = `
+            <div class="glass-card empty-state">
+                <h3>No matching recommendations</h3>
+                <p>Try removing the sector, signal, or search filter.</p>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = items.map((startup, index) => renderRecommendationCard(startup, index + 1)).join('');
+}
+
+function getFilteredItems() {
+    const { search, sector, signal, sort } = state.filters;
+
+    return state.items
+        .filter((startup) => {
+            const searchText = `${startup.name} ${startup.sector} ${startup.city || ''} ${startup.fundingStage}`.toLowerCase();
+            const matchesSearch = !search || searchText.includes(search);
+            const matchesSector = !sector || startup.sector === sector;
+            const matchesSignal = !signal || startup.signal === signal;
+            return matchesSearch && matchesSector && matchesSignal;
+        })
+        .sort((a, b) => {
+            if (sort === 'ltv') {
+                return b.ltvCacRatio - a.ltvCacRatio;
+            }
+
+            if (sort === 'risk') {
+                return a.riskScore - b.riskScore;
+            }
+
+            if (sort === 'runway') {
+                return Number(b.runway || 0) - Number(a.runway || 0);
+            }
+
+            return b.decisionScore - a.decisionScore;
+        });
+}
+
+function renderRecommendationCard(startup, displayRank) {
+    const signalClass = `signal-${startup.signal.toLowerCase()}`;
+    const scoreWidth = Math.min(100, Math.max(0, startup.decisionScore * 10));
+    const runway = Number(startup.runway || 0);
+
+    return `
+        <article class="glass-card recommendation-card ${signalClass}">
+            <div class="recommendation-rank">
+                <span>#${displayRank}</span>
+                <small>${startup.signal}</small>
+            </div>
+            <div class="recommendation-main">
+                <div class="recommendation-title-row">
+                    <div>
+                        <h2>${startup.name}</h2>
+                        <p>${startup.sector} • ${startup.city || 'India'} • ${startup.fundingStage}</p>
+                    </div>
+                    <strong>${startup.decisionScore.toFixed(2)}/10</strong>
+                </div>
+                <div class="score-meter" aria-label="Decision score ${startup.decisionScore.toFixed(2)} out of 10">
+                    <span style="width: ${scoreWidth}%"></span>
+                </div>
+                <p class="recommendation-reason">${startup.reason}</p>
+                <div class="recommendation-metrics">
+                    ${renderMetric('LTV/CAC', `${startup.ltvCacRatio.toFixed(2)}x`, 'Unit economics')}
+                    ${renderMetric('Risk', startup.riskScore.toFixed(0), getRiskCopy(startup.riskScore))}
+                    ${renderMetric('Runway', runway ? `${runway.toFixed(1)} mo` : '-', 'Cash buffer')}
+                    ${renderMetric('Funding', startup.totalFunding ? formatCompactCurrency(startup.totalFunding) : '-', 'Capital raised')}
+                </div>
+            </div>
+            <div class="recommendation-actions">
+                <button class="btn btn-primary" type="button" data-explain-id="${startup.startupId}">Explain Score</button>
+                <a href="/pages/details.html?id=${startup.startupId}" class="btn btn-secondary">Open Details</a>
+            </div>
+        </article>
+    `;
+}
+
+function renderExplanation(startup) {
+    const container = document.getElementById('recommendation-explainer');
+    const runway = Number(startup.runway || 0);
+
+    container.innerHTML = `
+        <div class="selected-startup">
+            <span class="system-label">Selected startup</span>
+            <h2>${startup.name}</h2>
+            <p>${startup.sector} • ${startup.fundingStage} • ${startup.city || 'India'}</p>
+        </div>
+        <div class="explanation-step">
+            <strong>1. Unit economics</strong>
+            <span>LTV/CAC is ${startup.ltvCacRatio.toFixed(2)}x, so acquisition cost is justified by lifetime value.</span>
+        </div>
+        <div class="explanation-step">
+            <strong>2. Risk control</strong>
+            <span>Risk score is ${startup.riskScore.toFixed(0)}. Lower risk improves the final investment score.</span>
+        </div>
+        <div class="explanation-step">
+            <strong>3. Runway check</strong>
+            <span>${runway ? `${runway.toFixed(1)} months runway` : 'Runway data missing'} shows whether the startup can survive until the next round.</span>
+        </div>
+        <div class="explanation-step">
+            <strong>4. Final call</strong>
+            <span>Decision score ${startup.decisionScore.toFixed(2)}/10 produces the signal: ${startup.signal}.</span>
+        </div>
+    `;
+}
+
+function renderSummaryTile(label, value, helper) {
+    return `
+        <div>
+            <span>${label}</span>
+            <strong>${value}</strong>
+            <small>${helper}</small>
+        </div>
+    `;
+}
+
+function renderMetric(label, value, helper) {
+    return `
+        <div>
+            <span>${label}</span>
+            <strong>${value}</strong>
+            <small>${helper}</small>
+        </div>
+    `;
+}
+
+function getRiskCopy(riskScore) {
+    if (riskScore < 35) {
+        return 'Low risk';
+    }
+
+    if (riskScore < 65) {
+        return 'Medium risk';
+    }
+
+    return 'High risk';
+}
+
+function average(values) {
+    if (!values.length) {
+        return 0;
+    }
+
+    return values.reduce((sum, value) => sum + Number(value || 0), 0) / values.length;
+}

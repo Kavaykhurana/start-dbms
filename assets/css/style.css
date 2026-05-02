@@ -200,6 +200,11 @@ h1, h2, h3, h4, .logo {
     margin-bottom: 40px;
 }
 
+.page-subtitle {
+    color: var(--text-secondary);
+    margin-top: 8px;
+}
+
 /* KPI Cards */
 .kpi-grid {
     display: grid;
@@ -309,6 +314,7 @@ tr:hover {
 
 /* Charts Grid */
 .charts-grid {
+    align-items: start;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 30px;
@@ -360,6 +366,358 @@ select option {
 
 .recommendation-card {
     gap: 22px;
+}
+
+.recommendation-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: 28px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    position: relative;
+}
+
+.recommendation-hero::after {
+    content: "";
+    position: absolute;
+    right: -120px;
+    top: -140px;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 210, 255, 0.22), transparent 66%);
+    pointer-events: none;
+}
+
+.system-label {
+    color: var(--accent-green);
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.recommendation-hero h2 {
+    font-size: clamp(2rem, 4vw, 4.1rem);
+    line-height: 1.02;
+    max-width: 900px;
+}
+
+.recommendation-hero p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-top: 18px;
+    max-width: 820px;
+}
+
+.formula-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.formula-strip span {
+    border: 1px solid rgba(0, 210, 255, 0.24);
+    border-radius: 999px;
+    color: #cdeefa;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 9px 12px;
+    background: rgba(0, 210, 255, 0.08);
+}
+
+.recommendation-summary {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    position: relative;
+    z-index: 1;
+}
+
+.recommendation-summary div {
+    min-height: 120px;
+    padding: 18px;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    background:
+        linear-gradient(145deg, rgba(0, 210, 255, 0.11), transparent),
+        rgba(255, 255, 255, 0.045);
+}
+
+.recommendation-summary span,
+.recommendation-summary small {
+    color: var(--text-secondary);
+    display: block;
+}
+
+.recommendation-summary strong {
+    display: block;
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.45rem;
+    line-height: 1.1;
+    margin: 10px 0 6px;
+}
+
+.recommendation-controls {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.3fr) repeat(3, minmax(150px, 0.45fr)) auto;
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.recommendation-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 28px;
+    align-items: start;
+}
+
+.recommendation-list {
+    display: grid;
+    gap: 18px;
+}
+
+.recommendation-list .recommendation-card {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr) 160px;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 0;
+    min-height: 225px;
+    overflow: hidden;
+    position: relative;
+}
+
+.recommendation-list .recommendation-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--accent-blue);
+}
+
+.recommendation-card.signal-invest::before {
+    background: var(--accent-green);
+}
+
+.recommendation-card.signal-watch::before {
+    background: var(--accent-yellow);
+}
+
+.recommendation-card.signal-avoid::before {
+    background: var(--accent-red);
+}
+
+.recommendation-rank span {
+    color: var(--text-primary);
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.recommendation-rank small {
+    color: var(--accent-green);
+    display: block;
+    font-weight: 800;
+    margin-top: 8px;
+}
+
+.signal-watch .recommendation-rank small {
+    color: var(--accent-yellow);
+}
+
+.signal-avoid .recommendation-rank small {
+    color: var(--accent-red);
+}
+
+.recommendation-title-row {
+    align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.recommendation-title-row h2 {
+    font-size: 1.65rem;
+    line-height: 1.15;
+}
+
+.recommendation-title-row p,
+.recommendation-reason,
+.recommendation-metrics span,
+.recommendation-metrics small,
+.selected-explainer,
+.sql-evidence-list span,
+.analytics-side-card p,
+.analytics-takeaway span,
+.analytics-takeaway small,
+.analytics-viva-list span {
+    color: var(--text-secondary);
+}
+
+.recommendation-title-row strong {
+    color: var(--accent-blue);
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    white-space: nowrap;
+}
+
+.score-meter {
+    height: 10px;
+    margin: 18px 0;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.score-meter span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+}
+
+.recommendation-reason {
+    line-height: 1.6;
+}
+
+.recommendation-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.recommendation-metrics div {
+    padding: 13px;
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.recommendation-metrics span,
+.recommendation-metrics small {
+    display: block;
+    font-size: 0.78rem;
+}
+
+.recommendation-metrics strong {
+    display: block;
+    font-size: 1rem;
+    margin: 6px 0 4px;
+}
+
+.recommendation-actions {
+    display: grid;
+    gap: 12px;
+}
+
+.recommendation-sidebar {
+    display: grid;
+    gap: 20px;
+    position: sticky;
+    top: 24px;
+}
+
+.selected-explainer {
+    display: grid;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.selected-startup {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.selected-startup h2 {
+    margin-bottom: 5px;
+}
+
+.explanation-step {
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 13px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.explanation-step strong,
+.explanation-step span {
+    display: block;
+}
+
+.explanation-step strong {
+    color: var(--accent-blue);
+    margin-bottom: 6px;
+}
+
+.sql-evidence-list,
+.analytics-takeaway-list,
+.analytics-viva-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.analytics-takeaway-list {
+    gap: 8px;
+}
+
+.sql-evidence-list div,
+.analytics-takeaway,
+.analytics-viva-list div {
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.analytics-takeaway {
+    padding: 10px 12px;
+}
+
+.sql-evidence-list strong,
+.sql-evidence-list span,
+.analytics-takeaway span,
+.analytics-takeaway strong,
+.analytics-takeaway small,
+.analytics-viva-list strong,
+.analytics-viva-list span {
+    display: block;
+}
+
+.sql-evidence-list strong,
+.analytics-takeaway strong,
+.analytics-viva-list strong {
+    color: var(--accent-green);
+    margin-bottom: 6px;
+}
+
+.analytics-side-card {
+    min-height: 100%;
+}
+
+.analytics-takeaway strong {
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem;
+    margin-bottom: 3px;
+}
+
+.analytics-takeaway span,
+.analytics-takeaway small {
+    font-size: 0.8rem;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-top: 8px;
 }
 
 .section-heading {
@@ -909,9 +1267,29 @@ canvas {
         gap: 20px;
     }
 
+    .charts-grid > .glass-card {
+        grid-column: auto !important;
+    }
+
     .dashboard-intel-grid {
         grid-template-columns: 1fr;
         gap: 20px;
+    }
+
+    .recommendation-hero,
+    .recommendation-workspace,
+    .recommendation-controls,
+    .recommendation-list .recommendation-card {
+        grid-template-columns: 1fr;
+    }
+
+    .recommendation-summary,
+    .recommendation-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .recommendation-sidebar {
+        position: static;
     }
 
     .filters {
@@ -951,6 +1329,16 @@ canvas {
 
     .charts-grid {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .recommendation-summary,
+    .recommendation-metrics,
+    .dbms-proof-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recommendation-title-row {
+        flex-direction: column;
     }
 
     .form-grid,
