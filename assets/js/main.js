@@ -145,20 +145,17 @@ function mountFullViewToggle() {
     const pageWrapper = document.createElement('div');
     pageWrapper.className = 'full-view-page-switcher';
     pageWrapper.innerHTML = `
-        <label class="view-slider view-slider-prominent" for="full-view-page-toggle">
-            <input id="full-view-page-toggle" type="checkbox">
-            <span class="view-slider-track" aria-hidden="true"><span></span></span>
-            <span class="view-slider-copy">
-                <strong>Full Screen View</strong>
-                <small>Slide on to expand the dashboard</small>
+        <button class="full-view-icon-toggle" id="full-view-page-toggle" type="button" aria-label="Toggle full screen view" title="Toggle full screen view">
+            <span class="full-view-icon-lines" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
             </span>
-        </label>
+        </button>
     `;
 
-    const checkboxes = [
-        sidebarWrapper.querySelector('#full-view-toggle'),
-        pageWrapper.querySelector('#full-view-page-toggle')
-    ];
+    const sidebarCheckbox = sidebarWrapper.querySelector('#full-view-toggle');
+    const pageButton = pageWrapper.querySelector('#full-view-page-toggle');
     const mainContent = document.querySelector('.main-content');
     const header = mainContent?.querySelector('.header');
     const sidebar = document.querySelector('.sidebar');
@@ -170,10 +167,10 @@ function mountFullViewToggle() {
 
     function syncFullViewControls() {
         const isEnabled = document.documentElement.dataset.fullView === 'true';
-        checkboxes.forEach((checkbox) => {
-            checkbox.checked = isEnabled;
-            checkbox.setAttribute('aria-checked', String(isEnabled));
-        });
+        sidebarCheckbox.checked = isEnabled;
+        sidebarCheckbox.setAttribute('aria-checked', String(isEnabled));
+        pageButton.setAttribute('aria-pressed', String(isEnabled));
+        pageButton.classList.toggle('is-active', isEnabled);
         sidebar.toggleAttribute('inert', isEnabled);
         sidebar.setAttribute('aria-hidden', String(isEnabled));
         pageWrapper.classList.toggle('is-active', isEnabled);
@@ -190,9 +187,8 @@ function mountFullViewToggle() {
         syncFullViewControls();
     }
 
-    checkboxes.forEach((checkbox) => {
-        checkbox.addEventListener('change', () => setFullView(checkbox.checked));
-    });
+    sidebarCheckbox.addEventListener('change', () => setFullView(sidebarCheckbox.checked));
+    pageButton.addEventListener('click', () => setFullView(document.documentElement.dataset.fullView !== 'true'));
     exitButton.addEventListener('click', () => setFullView(false));
 
     syncFullViewControls();
