@@ -549,6 +549,87 @@ select option {
     min-height: 100%;
 }
 
+.erd-scroll {
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.22);
+    overflow-x: auto;
+    padding: 12px;
+}
+
+.erd-image {
+    display: block;
+    height: auto;
+    min-width: 980px;
+    width: 100%;
+}
+
+.relationship-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-top: 18px;
+}
+
+.relationship-grid div {
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.relationship-grid strong {
+    color: var(--accent-blue);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.relationship-grid span {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+}
+
+.schema-table th,
+.schema-table td {
+    min-width: 150px;
+    vertical-align: top;
+}
+
+.schema-table td:last-child {
+    color: var(--text-secondary);
+}
+
+.query-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.query-card {
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.045);
+    overflow: hidden;
+}
+
+.query-card summary {
+    color: var(--text-primary);
+    cursor: pointer;
+    font-weight: 700;
+    padding: 16px;
+}
+
+.query-card summary::marker {
+    color: var(--accent-blue);
+}
+
+.query-card .code-panel {
+    border-radius: 0;
+    border-width: 1px 0 0;
+    margin-top: 0;
+    max-height: 360px;
+}
+
 .er-grid {
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     margin-top: 18px;

@@ -64,6 +64,8 @@ The deployed project can run in two modes:
 
 - [docs/backend-integration-report.md](./docs/backend-integration-report.md)
 - [docs/er-diagram-and-viva-guide.md](./docs/er-diagram-and-viva-guide.md)
+- [docs/er-diagram.svg](./docs/er-diagram.svg)
+- [docs/er-diagram.mmd](./docs/er-diagram.mmd)
 
 ## College Demo Order
 

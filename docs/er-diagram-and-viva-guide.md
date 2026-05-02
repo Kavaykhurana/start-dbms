@@ -32,6 +32,82 @@ erDiagram
     STARTUPS ||--o{ MARKET_DATA : tracks
     STARTUPS ||--o{ PARTNERSHIPS : signs
     INVESTMENTS ||--o{ RISK_ANALYSIS : assessed_by
+
+    SECTORS {
+        NUMBER sector_id PK
+        VARCHAR sector_name UK
+        VARCHAR sector_description
+        NUMBER base_risk_score
+    }
+
+    STARTUPS {
+        NUMBER startup_id PK
+        NUMBER sector_id FK
+        VARCHAR startup_name UK
+        VARCHAR city
+        VARCHAR state
+        NUMBER founding_year
+        VARCHAR funding_stage
+        NUMBER current_valuation_inr
+        NUMBER equity_committed_pct
+    }
+
+    INVESTORS {
+        NUMBER investor_id PK
+        VARCHAR investor_name UK
+        VARCHAR investor_type
+        VARCHAR email UK
+        NUMBER dry_powder_inr
+        VARCHAR risk_preference
+    }
+
+    INVESTMENTS {
+        NUMBER investment_id PK
+        NUMBER investor_id FK
+        NUMBER startup_id FK
+        VARCHAR funding_round
+        VARCHAR security_type
+        NUMBER invested_amount_inr
+        NUMBER equity_percentage
+        VARCHAR status
+    }
+
+    FINANCIAL_METRICS {
+        NUMBER metric_id PK
+        NUMBER startup_id FK
+        DATE metric_month UK
+        NUMBER revenue_inr
+        NUMBER net_profit_inr
+        NUMBER cac_inr
+        NUMBER ltv_inr
+        NUMBER burn_rate_inr
+        NUMBER runway_months
+        NUMBER churn_rate
+    }
+
+    MARKET_DATA {
+        NUMBER market_id PK
+        NUMBER startup_id FK
+        NUMBER simulated_trend_value
+        NUMBER competitor_score
+        DATE market_date UK
+    }
+
+    PARTNERSHIPS {
+        NUMBER partner_id PK
+        NUMBER startup_id FK
+        VARCHAR partner_name
+        VARCHAR deal_type
+        NUMBER impact_score
+    }
+
+    RISK_ANALYSIS {
+        NUMBER risk_id PK
+        NUMBER investment_id FK
+        NUMBER risk_score
+        VARCHAR factors
+        DATE assessment_date
+    }
 ```
 
 ## 4. Entity Explanation
@@ -168,4 +244,3 @@ The system ranks startups using risk-adjusted investment logic. A startup with h
 5. Open Recommendations and explain the scoring logic.
 6. Open Analytics and explain graph-based decision support.
 7. Open DBMS Docs and show the ER diagram, PL/SQL trigger, stored procedure, and complex join.
-

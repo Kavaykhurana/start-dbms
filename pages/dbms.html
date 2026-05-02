@@ -43,6 +43,7 @@
                     <p style="color: var(--text-secondary); margin: 10px 0 16px;">Use these files if a teacher asks for the actual SQL or report.</p>
                     <a class="btn btn-secondary" href="/database/oracle_plsql_queries.sql">Oracle PL/SQL Script</a>
                     <a class="btn btn-secondary" href="/docs/er-diagram-and-viva-guide.md" style="margin-left: 8px;">Viva Guide</a>
+                    <a class="btn btn-secondary" href="/docs/er-diagram.mmd" style="margin-left: 8px; margin-top: 8px;">Mermaid ERD</a>
                 </div>
             </div>
 
@@ -67,18 +68,274 @@ The database also contains views, triggers, stored procedures, complex joins, an
                 <div class="section-heading">
                     <div>
                         <h3>Final ER Diagram</h3>
-                        <p>Relationship direction matches the implemented SQL schema and API data flow.</p>
+                        <p>This is now a real ERD: tables, PK/FK attributes, and 1:N cardinalities are visible.</p>
+                    </div>
+                    <a class="btn btn-secondary" href="/docs/er-diagram.svg">Open SVG</a>
+                </div>
+                <div class="erd-scroll">
+                    <img class="erd-image" src="/docs/er-diagram.svg" alt="ER diagram showing sectors, startups, investors, investments, financial metrics, market data, partnerships, and risk analysis relationships.">
+                </div>
+                <div class="relationship-grid">
+                    <div><strong>Sectors 1:N Startups</strong><span>One sector classifies many startups.</span></div>
+                    <div><strong>Startups 1:N Investments</strong><span>One startup can receive multiple funding rounds.</span></div>
+                    <div><strong>Investors 1:N Investments</strong><span>One investor can fund many startups.</span></div>
+                    <div><strong>Startups 1:N FinancialMetrics</strong><span>Monthly revenue, CAC, LTV, burn, runway, churn.</span></div>
+                    <div><strong>Startups 1:N MarketData</strong><span>Market trend and competitor snapshots over time.</span></div>
+                    <div><strong>Startups 1:N Partnerships</strong><span>LOI and Pilot validation signals.</span></div>
+                    <div><strong>Investments 1:N RiskAnalysis</strong><span>Risk score snapshots for each investment.</span></div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <div class="section-heading">
+                    <div>
+                        <h3>Database Tables</h3>
+                        <p>These are the exact logical tables you should explain during viva.</p>
+                    </div>
+                    <a class="btn btn-secondary" href="/database/mysql_startup_investment_system.sql">Open MySQL Schema</a>
+                </div>
+                <div class="table-container">
+                    <table class="schema-table">
+                        <thead>
+                            <tr>
+                                <th>Table</th>
+                                <th>Primary Key</th>
+                                <th>Foreign Keys</th>
+                                <th>Main Columns</th>
+                                <th>Why It Exists</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>sectors</strong></td>
+                                <td>sector_id</td>
+                                <td>None</td>
+                                <td>sector_name, sector_description, base_risk_score</td>
+                                <td>Removes repeated sector names from startup rows.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>startups</strong></td>
+                                <td>startup_id</td>
+                                <td>sector_id -> sectors</td>
+                                <td>startup_name, city, state, funding_stage, valuation, employees</td>
+                                <td>Stores the master company profile.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>investors</strong></td>
+                                <td>investor_id</td>
+                                <td>None</td>
+                                <td>investor_name, investor_type, email, dry_powder, risk_preference</td>
+                                <td>Stores investor master data once.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>investments</strong></td>
+                                <td>investment_id</td>
+                                <td>investor_id -> investors, startup_id -> startups</td>
+                                <td>funding_round, security_type, amount, equity_percentage, status</td>
+                                <td>Connects investors and startups as a transaction table.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>financial_metrics</strong></td>
+                                <td>metric_id</td>
+                                <td>startup_id -> startups</td>
+                                <td>revenue, profit, CAC, LTV, burn_rate, runway, churn</td>
+                                <td>Stores monthly operating metrics separately from startup master data.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>market_data</strong></td>
+                                <td>market_id</td>
+                                <td>startup_id -> startups</td>
+                                <td>simulated_trend_value, competitor_score, market_date</td>
+                                <td>Stores external market signals for analytics charts.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>partnerships</strong></td>
+                                <td>partner_id</td>
+                                <td>startup_id -> startups</td>
+                                <td>partner_name, deal_type, impact_score, announced_date</td>
+                                <td>Stores validation like LOI or Pilot deals.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>risk_analysis</strong></td>
+                                <td>risk_id</td>
+                                <td>investment_id -> investments</td>
+                                <td>risk_score, factors, assessment_date</td>
+                                <td>Stores risk snapshots tied to investor exposure.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <div class="section-heading">
+                    <div>
+                        <h3>SQL Queries Board</h3>
+                        <p>The important queries are visible here, and full scripts are linked for copy/paste.</p>
+                    </div>
+                    <div>
+                        <a class="btn btn-secondary" href="/database/advanced_queries.sql">Advanced MySQL</a>
+                        <a class="btn btn-secondary" href="/database/oracle_plsql_queries.sql">Oracle PL/SQL</a>
                     </div>
                 </div>
-                <div class="er-grid">
-                    <div class="er-entity"><strong>Sectors</strong><span>sector_id PK</span><span>sector_name UNIQUE</span><span>1 to many startups</span></div>
-                    <div class="er-entity"><strong>Startups</strong><span>startup_id PK</span><span>sector_id FK</span><span>company master data</span></div>
-                    <div class="er-entity"><strong>Investors</strong><span>investor_id PK</span><span>investor_name UNIQUE</span><span>1 to many investments</span></div>
-                    <div class="er-entity"><strong>Investments</strong><span>investment_id PK</span><span>investor_id FK</span><span>startup_id FK</span></div>
-                    <div class="er-entity"><strong>FinancialMetrics</strong><span>metric_id PK</span><span>startup_id FK</span><span>CAC, LTV, burn, runway</span></div>
-                    <div class="er-entity"><strong>MarketData</strong><span>market_id PK</span><span>startup_id FK</span><span>trend and competitor score</span></div>
-                    <div class="er-entity"><strong>Partnerships</strong><span>partner_id PK</span><span>startup_id FK</span><span>LOI or Pilot</span></div>
-                    <div class="er-entity"><strong>RiskAnalysis</strong><span>risk_id PK</span><span>investment_id FK</span><span>risk score snapshots</span></div>
+
+                <div class="query-grid">
+                    <details class="query-card" open>
+                        <summary>View 1: vw_TopStartups</summary>
+                        <pre class="code-panel">CREATE OR REPLACE VIEW vw_TopStartups AS
+SELECT s.startup_id, s.startup_name, sec.sector_name, s.funding_stage,
+       ROUND(fm.ltv_inr / NULLIF(fm.cac_inr, 0), 2) AS ltv_cac_ratio,
+       fm.runway_months, fm.churn_rate
+FROM startups s
+JOIN sectors sec ON sec.sector_id = s.sector_id
+JOIN financial_metrics fm ON fm.startup_id = s.startup_id
+WHERE fm.metric_month = (
+    SELECT MAX(metric_month)
+    FROM financial_metrics
+    WHERE startup_id = s.startup_id
+)
+AND (fm.ltv_inr / NULLIF(fm.cac_inr, 0)) >= 4
+AND fm.runway_months >= 9;</pre>
+                    </details>
+
+                    <details class="query-card">
+                        <summary>View 2: vw_HighRiskAlerts</summary>
+                        <pre class="code-panel">CREATE OR REPLACE VIEW vw_HighRiskAlerts AS
+SELECT s.startup_name, sec.sector_name, fm.burn_rate_inr,
+       fm.runway_months, fm.churn_rate, AVG(ra.risk_score) AS avg_risk_score
+FROM startups s
+JOIN sectors sec ON sec.sector_id = s.sector_id
+JOIN financial_metrics fm ON fm.startup_id = s.startup_id
+LEFT JOIN investments i ON i.startup_id = s.startup_id
+LEFT JOIN risk_analysis ra ON ra.investment_id = i.investment_id
+WHERE fm.runway_months < 6
+GROUP BY s.startup_name, sec.sector_name, fm.burn_rate_inr, fm.runway_months, fm.churn_rate;</pre>
+                    </details>
+
+                    <details class="query-card">
+                        <summary>Trigger 1: trig_EquityCheck</summary>
+                        <pre class="code-panel">CREATE TRIGGER trig_EquityCheck
+BEFORE INSERT ON investments
+FOR EACH ROW
+BEGIN
+    DECLARE v_total_equity DECIMAL(7,2);
+
+    SELECT COALESCE(SUM(equity_percentage), 0)
+    INTO v_total_equity
+    FROM investments
+    WHERE startup_id = NEW.startup_id
+      AND status = 'Active';
+
+    IF v_total_equity + NEW.equity_percentage > 100 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Equity cannot exceed 100 percent.';
+    END IF;
+END;</pre>
+                    </details>
+
+                    <details class="query-card">
+                        <summary>Trigger 2: trig_RiskUpdate</summary>
+                        <pre class="code-panel">CREATE TRIGGER trig_RiskUpdate
+AFTER UPDATE ON financial_metrics
+FOR EACH ROW
+BEGIN
+    IF NEW.burn_rate_inr <> OLD.burn_rate_inr
+       OR NEW.churn_rate <> OLD.churn_rate
+       OR NEW.runway_months <> OLD.runway_months THEN
+        UPDATE risk_analysis ra
+        JOIN investments i ON i.investment_id = ra.investment_id
+        SET ra.risk_score = LEAST(100,
+            CASE WHEN NEW.runway_months < 6 THEN 35 ELSE 10 END
+            + LEAST(30, NEW.churn_rate * 4)
+        )
+        WHERE i.startup_id = NEW.startup_id;
+    END IF;
+END;</pre>
+                    </details>
+
+                    <details class="query-card">
+                        <summary>Procedure 1: sp_CalculateROI</summary>
+                        <pre class="code-panel">CREATE PROCEDURE sp_CalculateROI (
+    IN p_investment_id BIGINT,
+    OUT p_roi_percentage DECIMAL(10,2)
+)
+BEGIN
+    SELECT ROUND(
+        ((fm.net_profit_inr * 12 * 5 * (i.equity_percentage / 100))
+        / NULLIF(i.invested_amount_inr, 0)) * 100,
+        2
+    )
+    INTO p_roi_percentage
+    FROM investments i
+    JOIN financial_metrics fm ON fm.startup_id = i.startup_id
+    WHERE i.investment_id = p_investment_id
+    ORDER BY fm.metric_month DESC
+    LIMIT 1;
+END;</pre>
+                    </details>
+
+                    <details class="query-card">
+                        <summary>Procedure 2: sp_GetRecommendation</summary>
+                        <pre class="code-panel">CREATE PROCEDURE sp_GetRecommendation()
+BEGIN
+    SELECT startup_name, sector_name, funding_stage,
+           ROUND(ltv_cac_ratio, 2) AS ltv_cac_ratio,
+           ROUND(recommendation_score / 10, 2) AS decision_score
+    FROM (
+        SELECT s.startup_name, sec.sector_name, s.funding_stage,
+               fm.ltv_inr / NULLIF(fm.cac_inr, 0) AS ltv_cac_ratio,
+               0.50 * LEAST(100, (fm.ltv_inr / NULLIF(fm.cac_inr, 0)) * 16.67)
+               + 0.30 * (100 - COALESCE(rs.latest_risk_score, 50)) AS recommendation_score
+        FROM startups s
+        JOIN sectors sec ON sec.sector_id = s.sector_id
+        JOIN financial_metrics fm ON fm.startup_id = s.startup_id
+        LEFT JOIN (
+            SELECT i.startup_id, AVG(ra.risk_score) AS latest_risk_score
+            FROM investments i
+            JOIN risk_analysis ra ON ra.investment_id = i.investment_id
+            GROUP BY i.startup_id
+        ) rs ON rs.startup_id = s.startup_id
+        WHERE fm.metric_month = (
+            SELECT MAX(metric_month)
+            FROM financial_metrics
+            WHERE startup_id = s.startup_id
+        )
+    ) ranked
+    ORDER BY recommendation_score DESC
+    LIMIT 5;
+END;</pre>
+                    </details>
+
+                    <details class="query-card">
+                        <summary>Complex Join: highest ROI Fintech investors</summary>
+                        <pre class="code-panel">SELECT inv.investor_name, s.startup_name, sec.sector_name,
+       i.funding_round, fm.net_profit_inr, ra.risk_score,
+       ROUND(((fm.net_profit_inr * 12 * 5 * (i.equity_percentage / 100))
+       / i.invested_amount_inr) * 100, 2) AS roi_proxy_pct
+FROM startups s
+JOIN sectors sec ON sec.sector_id = s.sector_id
+JOIN investments i ON i.startup_id = s.startup_id
+JOIN investors inv ON inv.investor_id = i.investor_id
+JOIN financial_metrics fm ON fm.startup_id = s.startup_id
+LEFT JOIN risk_analysis ra ON ra.investment_id = i.investment_id
+WHERE sec.sector_name = 'Fintech'
+ORDER BY roi_proxy_pct DESC;</pre>
+                    </details>
+
+                    <details class="query-card">
+                        <summary>Correlated Subquery: sector-average burn rate</summary>
+                        <pre class="code-panel">SELECT s.startup_name, sec.sector_name, fm.burn_rate_inr
+FROM startups s
+JOIN sectors sec ON sec.sector_id = s.sector_id
+JOIN financial_metrics fm ON fm.startup_id = s.startup_id
+WHERE fm.burn_rate_inr > (
+    SELECT AVG(fm_sector.burn_rate_inr)
+    FROM startups s_sector
+    JOIN financial_metrics fm_sector
+      ON fm_sector.startup_id = s_sector.startup_id
+    WHERE s_sector.sector_id = s.sector_id
+);</pre>
+                    </details>
                 </div>
             </div>
 
