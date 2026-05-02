@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startup Details | Startup Investment System</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">VENTURE ANALYTICS</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="startups.html">Startups</a></li>
+                <li><a href="recommendations.html">Recommendations</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <a href="startups.html" style="color: var(--text-secondary); text-decoration: none;">&larr; Back</a>
+                    <h1 id="startup-name">Startup Name</h1>
+                    <span id="startup-badge" class="badge">Stage</span>
+                </div>
+            </header>
+
+            <div class="kpi-grid">
+                <div class="glass-card kpi-card">
+                    <h3>CAC</h3>
+                    <div class="value" id="val-cac">$0</div>
+                </div>
+                <div class="glass-card kpi-card">
+                    <h3>LTV</h3>
+                    <div class="value" id="val-ltv">$0</div>
+                </div>
+                <div class="glass-card kpi-card">
+                    <h3>Burn Rate</h3>
+                    <div class="value" id="val-burn">$0/mo</div>
+                </div>
+                <div class="glass-card kpi-card">
+                    <h3>Runway</h3>
+                    <div class="value" id="val-runway" style="color: var(--accent-yellow);">0 Months</div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <h3>Financial History (Revenue Growth)</h3>
+                <div style="height: 400px; margin-top: 20px;">
+                    <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/charts.js"></script>
+    <script type="module" src="../assets/js/detailsPage.js"></script>
+</body>
+</html>

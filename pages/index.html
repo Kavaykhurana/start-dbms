@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Startup Investment System</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">VENTURE ANALYTICS</div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Dashboard</a></li>
+                <li><a href="startups.html">Startups</a></li>
+                <li><a href="recommendations.html">Recommendations</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <h1>Investment Dashboard</h1>
+                <div class="user-profile">
+                    <span id="current-date">May 03, 2026</span>
+                </div>
+            </header>
+
+            <!-- KPI Grid -->
+            <div class="kpi-grid">
+                <div class="glass-card kpi-card">
+                    <h3>Total Startups</h3>
+                    <div class="value" id="total-startups">0</div>
+                </div>
+                <div class="glass-card kpi-card">
+                    <h3>Total Funding</h3>
+                    <div class="value" id="total-funding">$0</div>
+                </div>
+                <div class="glass-card kpi-card">
+                    <h3>Avg ROI</h3>
+                    <div class="value" id="avg-roi">0%</div>
+                </div>
+                <div class="glass-card kpi-card">
+                    <h3>System Risk Level</h3>
+                    <div class="value" id="risk-level" style="color: var(--accent-green);">Low</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="glass-card">
+                    <h3>Sector-wise Growth</h3>
+                    <div style="height: 300px; margin-top: 20px;">
+                        <canvas id="sectorChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3>Investment Trends</h3>
+                    <div style="height: 300px; margin-top: 20px;">
+                        <canvas id="trendsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/charts.js"></script>
+    <script type="module" src="../assets/js/dashboardPage.js"></script>
+</body>
+</html>

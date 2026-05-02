@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startups | Startup Investment System</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">VENTURE ANALYTICS</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="startups.html" class="active">Startups</a></li>
+                <li><a href="recommendations.html">Recommendations</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Startup Portfolio</h1>
+                <button class="btn btn-primary">+ Add Startup</button>
+            </header>
+
+            <div class="glass-card">
+                <div class="filters">
+                    <input type="text" id="search" placeholder="Search startups..." style="flex: 1;">
+                    <select id="filter-sector">
+                        <option value="">All Sectors</option>
+                        <option value="Fintech">Fintech</option>
+                        <option value="Healthtech">Healthtech</option>
+                        <option value="Cybersecurity">Cybersecurity</option>
+                    </select>
+                    <select id="filter-risk">
+                        <option value="">All Risk Levels</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Startup Name</th>
+                                <th>Sector</th>
+                                <th>Stage</th>
+                                <th>Total Funding</th>
+                                <th>Risk Level</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="startup-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script type="module" src="../assets/js/startupsPage.js"></script>
+</body>
+</html>
