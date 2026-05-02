@@ -2,6 +2,8 @@
 
 This project now includes the full backend "engine" for the existing frontend:
 
+- Live site: https://startup-investment-system-bice.vercel.app
+- GitHub repo: https://github.com/Kavaykhurana/start-dbms
 - `Node.js + Express` API layer
 - `Vercel` deployment support through a serverless API entrypoint
 - `MySQL 8` schema with seed data
