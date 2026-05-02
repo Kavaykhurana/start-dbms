@@ -1,9 +1,7 @@
 // Global logic and UI helpers
 const THEME_STORAGE_KEY = 'ventureAnalytics.theme';
-const FULL_VIEW_STORAGE_KEY = 'ventureAnalytics.fullView';
 
 applyTheme(getStoredTheme());
-applyFullView(getStoredFullView());
 
 document.addEventListener('DOMContentLoaded', () => {
     const currentPath = normalizePath(window.location.pathname);
@@ -19,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mountAcademicDataNote();
     mountTeacherDemo();
-    mountFullViewToggle();
     mountThemeToggle();
 });
 
@@ -59,14 +56,6 @@ function getStoredTheme() {
 
 function applyTheme(theme) {
     document.documentElement.dataset.theme = theme;
-}
-
-function getStoredFullView() {
-    return localStorage.getItem(FULL_VIEW_STORAGE_KEY) === 'true';
-}
-
-function applyFullView(isEnabled) {
-    document.documentElement.dataset.fullView = isEnabled ? 'true' : 'false';
 }
 
 function getSidebarControls() {
@@ -119,86 +108,6 @@ function mountThemeToggle() {
     syncButton();
     wrapper.appendChild(button);
     controls.appendChild(wrapper);
-}
-
-function mountFullViewToggle() {
-    const controls = getSidebarControls();
-
-    if (!controls || document.getElementById('full-view-toggle')) {
-        return;
-    }
-
-    const sidebarWrapper = document.createElement('div');
-    sidebarWrapper.className = 'full-view-switcher';
-
-    sidebarWrapper.innerHTML = `
-        <label class="view-slider" for="full-view-toggle">
-            <input id="full-view-toggle" type="checkbox">
-            <span class="view-slider-track" aria-hidden="true"><span></span></span>
-            <span class="view-slider-copy">
-                <strong>Full View</strong>
-                <small>Hide sidebar and expand workspace</small>
-            </span>
-        </label>
-    `;
-
-    const pageWrapper = document.createElement('div');
-    pageWrapper.className = 'full-view-page-switcher';
-    pageWrapper.innerHTML = `
-        <button class="full-view-icon-toggle" id="full-view-page-toggle" type="button" aria-label="Toggle full screen view" title="Toggle full screen view">
-            <span class="full-view-icon-lines" aria-hidden="true">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
-        </button>
-    `;
-
-    const sidebarCheckbox = sidebarWrapper.querySelector('#full-view-toggle');
-    const pageButton = pageWrapper.querySelector('#full-view-page-toggle');
-    const mainContent = document.querySelector('.main-content');
-    const header = mainContent?.querySelector('.header');
-    const sidebar = document.querySelector('.sidebar');
-    const exitButton = document.createElement('button');
-    exitButton.id = 'full-view-exit';
-    exitButton.className = 'full-view-exit';
-    exitButton.type = 'button';
-    exitButton.textContent = 'Exit Full View';
-
-    function syncFullViewControls() {
-        const isEnabled = document.documentElement.dataset.fullView === 'true';
-        sidebarCheckbox.checked = isEnabled;
-        sidebarCheckbox.setAttribute('aria-checked', String(isEnabled));
-        pageButton.setAttribute('aria-pressed', String(isEnabled));
-        pageButton.classList.toggle('is-active', isEnabled);
-        sidebar.toggleAttribute('inert', isEnabled);
-        sidebar.setAttribute('aria-hidden', String(isEnabled));
-        pageWrapper.classList.toggle('is-active', isEnabled);
-        exitButton.classList.toggle('is-visible', isEnabled);
-    }
-
-    function setFullView(isEnabled) {
-        if (isEnabled && sidebar.contains(document.activeElement)) {
-            document.activeElement.blur();
-        }
-
-        localStorage.setItem(FULL_VIEW_STORAGE_KEY, String(isEnabled));
-        applyFullView(isEnabled);
-        syncFullViewControls();
-    }
-
-    sidebarCheckbox.addEventListener('change', () => setFullView(sidebarCheckbox.checked));
-    pageButton.addEventListener('click', () => setFullView(document.documentElement.dataset.fullView !== 'true'));
-    exitButton.addEventListener('click', () => setFullView(false));
-
-    syncFullViewControls();
-    controls.appendChild(sidebarWrapper);
-    if (header) {
-        header.insertAdjacentElement('afterend', pageWrapper);
-    } else if (mainContent) {
-        mainContent.prepend(pageWrapper);
-    }
-    document.body.appendChild(exitButton);
 }
 
 function mountAcademicDataNote() {
