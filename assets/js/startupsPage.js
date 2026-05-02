@@ -345,6 +345,12 @@ function openModal() {
 
 function closeModal() {
     const modal = document.getElementById('startup-modal');
+    const activeElement = document.activeElement;
+
+    if (activeElement && modal.contains(activeElement)) {
+        activeElement.blur();
+    }
+
     modal.classList.add('is-hidden');
     modal.setAttribute('aria-hidden', 'true');
     document.getElementById('startup-form').reset();

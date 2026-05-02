@@ -1,7 +1,9 @@
 // Global logic and UI helpers
 const THEME_STORAGE_KEY = 'ventureAnalytics.theme';
+const FULL_VIEW_STORAGE_KEY = 'ventureAnalytics.fullView';
 
 applyTheme(getStoredTheme());
+applyFullView(getStoredFullView());
 
 document.addEventListener('DOMContentLoaded', () => {
     const currentPath = normalizePath(window.location.pathname);
@@ -17,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mountAcademicDataNote();
     mountTeacherDemo();
+    mountFullViewToggle();
     mountThemeToggle();
 });
 
@@ -58,10 +61,36 @@ function applyTheme(theme) {
     document.documentElement.dataset.theme = theme;
 }
 
-function mountThemeToggle() {
+function getStoredFullView() {
+    return localStorage.getItem(FULL_VIEW_STORAGE_KEY) === 'true';
+}
+
+function applyFullView(isEnabled) {
+    document.documentElement.dataset.fullView = isEnabled ? 'true' : 'false';
+}
+
+function getSidebarControls() {
     const sidebar = document.querySelector('.sidebar');
 
-    if (!sidebar || document.getElementById('theme-toggle')) {
+    if (!sidebar) {
+        return null;
+    }
+
+    let controls = sidebar.querySelector('.sidebar-controls');
+
+    if (!controls) {
+        controls = document.createElement('div');
+        controls.className = 'sidebar-controls';
+        sidebar.appendChild(controls);
+    }
+
+    return controls;
+}
+
+function mountThemeToggle() {
+    const controls = getSidebarControls();
+
+    if (!controls || document.getElementById('theme-toggle')) {
         return;
     }
 
@@ -89,7 +118,63 @@ function mountThemeToggle() {
 
     syncButton();
     wrapper.appendChild(button);
-    sidebar.appendChild(wrapper);
+    controls.appendChild(wrapper);
+}
+
+function mountFullViewToggle() {
+    const controls = getSidebarControls();
+
+    if (!controls || document.getElementById('full-view-toggle')) {
+        return;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'full-view-switcher';
+
+    wrapper.innerHTML = `
+        <label class="view-slider" for="full-view-toggle">
+            <input id="full-view-toggle" type="checkbox">
+            <span class="view-slider-track" aria-hidden="true"><span></span></span>
+            <span class="view-slider-copy">
+                <strong>Full View</strong>
+                <small>Hide sidebar and expand workspace</small>
+            </span>
+        </label>
+    `;
+
+    const checkbox = wrapper.querySelector('#full-view-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const exitButton = document.createElement('button');
+    exitButton.id = 'full-view-exit';
+    exitButton.className = 'full-view-exit';
+    exitButton.type = 'button';
+    exitButton.textContent = 'Exit Full View';
+
+    function syncFullViewControls() {
+        const isEnabled = document.documentElement.dataset.fullView === 'true';
+        checkbox.checked = isEnabled;
+        checkbox.setAttribute('aria-checked', String(isEnabled));
+        sidebar.toggleAttribute('inert', isEnabled);
+        sidebar.setAttribute('aria-hidden', String(isEnabled));
+        exitButton.classList.toggle('is-visible', isEnabled);
+    }
+
+    function setFullView(isEnabled) {
+        if (isEnabled && sidebar.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+
+        localStorage.setItem(FULL_VIEW_STORAGE_KEY, String(isEnabled));
+        applyFullView(isEnabled);
+        syncFullViewControls();
+    }
+
+    checkbox.addEventListener('change', () => setFullView(checkbox.checked));
+    exitButton.addEventListener('click', () => setFullView(false));
+
+    syncFullViewControls();
+    controls.appendChild(wrapper);
+    document.body.appendChild(exitButton);
 }
 
 function mountAcademicDataNote() {
