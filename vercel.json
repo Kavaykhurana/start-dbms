@@ -15,7 +15,15 @@
       "destination": "/pages/index.html"
     },
     {
+      "source": "/dashboard",
+      "destination": "/pages/index.html"
+    },
+    {
       "source": "/startups.html",
+      "destination": "/pages/startups.html"
+    },
+    {
+      "source": "/startups",
       "destination": "/pages/startups.html"
     },
     {
@@ -23,7 +31,15 @@
       "destination": "/pages/details.html"
     },
     {
+      "source": "/details",
+      "destination": "/pages/details.html"
+    },
+    {
       "source": "/recommendations.html",
+      "destination": "/pages/recommendations.html"
+    },
+    {
+      "source": "/recommendations",
       "destination": "/pages/recommendations.html"
     },
     {
@@ -31,7 +47,15 @@
       "destination": "/pages/analytics.html"
     },
     {
+      "source": "/analytics",
+      "destination": "/pages/analytics.html"
+    },
+    {
       "source": "/dbms.html",
+      "destination": "/pages/dbms.html"
+    },
+    {
+      "source": "/dbms",
       "destination": "/pages/dbms.html"
     }
   ]

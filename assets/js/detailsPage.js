@@ -32,16 +32,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         renderProfile(startup);
         renderSignals(startup);
+        renderDeepDetails(startup, financialHistory);
 
         const chartValues = financialHistory.data.map((value) => Number((value / 10000000).toFixed(2)));
         const ctx = document.getElementById('historyChart').getContext('2d');
+        const chartColor = getChartColor(startup.riskLevel);
 
         createLineChart(
             ctx,
             financialHistory.labels,
             chartValues,
             'Revenue (INR Cr)',
-            '#00ff88'
+            chartColor
         );
     } catch (error) {
         renderPageError('.main-content', error.message);
@@ -64,7 +66,7 @@ function renderProfile(startup) {
     profileDetails.innerHTML = '';
     details.forEach(([label, value]) => {
         const row = document.createElement('div');
-        row.innerHTML = `<span>${label}</span><strong>${value}</strong>`;
+        row.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>`;
         profileDetails.appendChild(row);
     });
 }
@@ -85,11 +87,138 @@ function renderSignals(startup) {
     signals.forEach(([label, value]) => {
         const chip = document.createElement('div');
         chip.className = 'metric-chip';
-        chip.innerHTML = `<span>${label}</span><strong>${value}</strong>`;
+        chip.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>`;
         signalDetails.appendChild(chip);
     });
 
     document.getElementById('startup-thesis').textContent = buildThesis(startup, ltvCacRatio);
+}
+
+function renderDeepDetails(startup, financialHistory) {
+    const latestRevenue = Number(financialHistory.data?.[financialHistory.data.length - 1] || 0);
+    const firstRevenue = Number(financialHistory.data?.[0] || 0);
+    const growthRate = firstRevenue > 0 ? ((latestRevenue - firstRevenue) / firstRevenue) * 100 : 0;
+    const ltvCacRatio = startup.cac ? startup.ltv / startup.cac : 0;
+    const impliedEquity = startup.valuation ? (startup.totalFunding / startup.valuation) * 100 : 0;
+
+    document.getElementById('history-narrative').textContent = buildHistoryNarrative(startup, growthRate, latestRevenue);
+    document.getElementById('history-growth-badge').textContent = `${growthRate.toFixed(1)}% six-month growth`;
+
+    renderDetailRows('funding-readout', [
+        ['Funding Stage', startup.fundingStage || 'N/A'],
+        ['Total Funding', formatCompactCurrency(startup.totalFunding)],
+        ['Current Valuation', formatCompactCurrency(startup.valuation)],
+        ['Implied Equity', `${impliedEquity.toFixed(2)}%`],
+        ['Likely Instrument', getInstrument(startup.fundingStage)]
+    ]);
+
+    renderDetailRows('market-readout', [
+        ['Sector', startup.sector || 'N/A'],
+        ['Market Trend', `${Number(startup.marketTrend || 0).toFixed(0)}/100`],
+        ['Competitor Score', `${Number(startup.competitorScore || 0).toFixed(0)}/100`],
+        ['Partner', startup.partnerName || 'N/A'],
+        ['Deal Type', startup.dealType || 'N/A'],
+        ['Impact Score', `${Number(startup.impactScore || 0).toFixed(1)}/10`]
+    ]);
+
+    renderDetailRows('risk-readout', [
+        ['Decision Signal', getDecisionSignal(startup, ltvCacRatio)],
+        ['Risk Score', `${Number(startup.riskScore || 0).toFixed(0)}/100`],
+        ['Burn Rate', `${formatCompactCurrency(startup.burnRate)}/mo`],
+        ['Runway', `${Number(startup.runway || 0).toFixed(1)} months`],
+        ['Churn', `${Number(startup.churnRate || 0).toFixed(1)}%`],
+        ['Reason', buildRiskReason(startup)]
+    ]);
+
+    renderSqlReadout(startup);
+}
+
+function renderDetailRows(containerId, rows) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    rows.forEach(([label, value]) => {
+        const row = document.createElement('div');
+        row.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>`;
+        container.appendChild(row);
+    });
+}
+
+function renderSqlReadout(startup) {
+    const container = document.getElementById('sql-readout');
+    const rows = [
+        ['startups', `startup_id=${startup.id}, sector_id via ${startup.sector}`],
+        ['financial_metrics', 'CAC, LTV, burn_rate, runway, churn_rate'],
+        ['market_data', `trend=${Number(startup.marketTrend || 0).toFixed(0)}, competitor=${Number(startup.competitorScore || 0).toFixed(0)}`],
+        ['partnerships', `${startup.partnerName || 'N/A'} (${startup.dealType || 'N/A'})`],
+        ['risk_analysis', `risk_score=${Number(startup.riskScore || 0).toFixed(0)}`],
+        ['investments', `${startup.fundingStage || 'N/A'} round, ${formatCompactCurrency(startup.totalFunding)} funding`]
+    ];
+
+    container.innerHTML = rows.map(([tableName, description]) => `
+        <div>
+            <strong>${escapeHtml(tableName)}</strong>
+            <span>${escapeHtml(description)}</span>
+        </div>
+    `).join('');
+}
+
+function buildHistoryNarrative(startup, growthRate, latestRevenue) {
+    const latestRevenueText = formatCompactCurrency(latestRevenue);
+
+    if (growthRate >= 80) {
+        return `${startup.name} shows breakout revenue movement: ${growthRate.toFixed(1)}% six-month growth and latest monthly revenue of ${latestRevenueText}.`;
+    }
+
+    if (growthRate >= 35) {
+        return `${startup.name} shows steady scaling: ${growthRate.toFixed(1)}% six-month growth and latest monthly revenue of ${latestRevenueText}.`;
+    }
+
+    return `${startup.name} is still validating monetization: ${growthRate.toFixed(1)}% six-month growth and latest monthly revenue of ${latestRevenueText}.`;
+}
+
+function getDecisionSignal(startup, ltvCacRatio) {
+    if (ltvCacRatio >= 5 && Number(startup.riskScore || 0) < 45 && Number(startup.runway || 0) >= 10) {
+        return 'Invest: strong unit economics and controlled risk';
+    }
+
+    if (Number(startup.riskScore || 0) >= 65 || Number(startup.runway || 0) < 6) {
+        return 'Review: risk or runway trigger is active';
+    }
+
+    return 'Watch: promising, but needs operating proof';
+}
+
+function buildRiskReason(startup) {
+    if (startup.riskLevel === 'Low') {
+        return 'Healthy runway, low churn, and manageable burn pressure.';
+    }
+
+    if (startup.riskLevel === 'High') {
+        return 'Short runway, heavier execution risk, or elevated churn.';
+    }
+
+    return 'Moderate risk profile; monitor churn, burn, and next-round readiness.';
+}
+
+function getInstrument(stage) {
+    if (stage === 'Seed' || stage === 'Pre-Seed') {
+        return 'SAFE / Convertible Note';
+    }
+
+    return 'Preferred Equity';
+}
+
+function getChartColor(riskLevel) {
+    if (riskLevel === 'High') {
+        return '#ff6b6b';
+    }
+
+    if (riskLevel === 'Medium') {
+        return '#ffb347';
+    }
+
+    return '#00ff88';
 }
 
 function buildThesis(startup, ltvCacRatio) {
@@ -126,4 +255,14 @@ function getLocalStartups() {
     } catch (_error) {
         return [];
     }
+}
+
+function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[char]));
 }

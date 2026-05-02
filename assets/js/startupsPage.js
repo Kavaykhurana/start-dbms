@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td class="decision-cell">
                     <strong class="${decision.className}">${decision.label}</strong>
                     <span>${decision.reason}</span>
-                    <a href="/pages/details.html?id=${encodeURIComponent(startup.id)}" class="btn btn-secondary">Details</a>
+                    <a href="${buildDetailsUrl(startup.id)}" class="btn btn-secondary">Details</a>
                 </td>
             `;
             tableBody.appendChild(row);
@@ -221,7 +221,7 @@ function renderPortfolioInsights(startups) {
         <span class="system-label">Runway watchlist</span>
         <h3>${watchlist.length} needs review</h3>
         <div class="watchlist-mini">
-            ${watchlist.map((startup) => `<a href="/pages/details.html?id=${encodeURIComponent(startup.id)}"><strong>${escapeHtml(startup.name)}</strong><span>${Number(startup.runway || 0).toFixed(1)} mo • ${startup.riskLevel}</span></a>`).join('') || '<p>No urgent runway alerts.</p>'}
+            ${watchlist.map((startup) => `<a href="${buildDetailsUrl(startup.id)}"><strong>${escapeHtml(startup.name)}</strong><span>${Number(startup.runway || 0).toFixed(1)} mo • ${startup.riskLevel}</span></a>`).join('') || '<p>No urgent runway alerts.</p>'}
         </div>
     `;
 }
@@ -234,6 +234,10 @@ function renderSummaryTile(label, value, helper) {
             <small>${helper}</small>
         </div>
     `;
+}
+
+function buildDetailsUrl(startupId) {
+    return `/details?id=${encodeURIComponent(startupId)}`;
 }
 
 function renderCountChips(counts) {
@@ -365,8 +369,9 @@ function buildStartupFromForm(formData) {
     const state = String(formData.get('state') || '').trim();
     const sector = String(formData.get('sector') || '').trim();
     const name = String(formData.get('name') || '').trim();
+    const riskScore = riskScoreFromLevel(riskLevel);
 
-    return {
+    const startup = {
         id: `local-${Date.now()}`,
         isLocal: true,
         name,
@@ -387,7 +392,7 @@ function buildStartupFromForm(formData) {
         valuation,
         employeeCount: 25,
         totalFunding,
-        riskScore: riskScoreFromLevel(riskLevel),
+        riskScore,
         riskLevel,
         cac,
         ltv,
@@ -396,13 +401,30 @@ function buildStartupFromForm(formData) {
         churnRate: Number(formData.get('churnRate') || 0),
         customerCount: Math.max(100, Math.round((totalFunding / 10000000) * 1200)),
         ltvCacRatio: Number((ltv / cac).toFixed(2)),
-        history: buildLocalHistory(totalFunding)
+        history: []
     };
+
+    startup.history = buildLocalHistory(startup);
+
+    return startup;
 }
 
-function buildLocalHistory(totalFunding) {
-    const baseline = Math.max(1200000, totalFunding * 0.08);
-    return [0.58, 0.66, 0.74, 0.83, 0.92, 1].map((factor) => Math.round(baseline * factor));
+function buildLocalHistory(startup) {
+    const latestRevenue = Math.max(1200000, Number(startup.totalFunding || 0) * 0.08);
+    const seedShapes = {
+        Fintech: [0.44, 0.51, 0.64, 0.74, 0.88, 1],
+        Edtech: [0.38, 0.45, 0.53, 0.70, 0.82, 1],
+        Healthtech: [0.50, 0.54, 0.61, 0.72, 0.80, 1],
+        ClimateTech: [0.34, 0.42, 0.58, 0.62, 0.83, 1],
+        SaaS: [0.41, 0.52, 0.66, 0.78, 0.89, 1],
+        Gaming: [0.31, 0.55, 0.48, 0.73, 0.82, 1],
+        Biotech: [0.28, 0.32, 0.44, 0.57, 0.68, 1]
+    };
+    const fallbackShape = [0.40, 0.49, 0.60, 0.72, 0.86, 1];
+    const shape = seedShapes[startup.sector] || fallbackShape;
+    const riskAdjustment = startup.riskLevel === 'High' ? [0, 0.03, -0.04, 0.02, -0.02, 0] : [0, 0, 0.01, 0, 0.01, 0];
+
+    return shape.map((factor, index) => Math.round(latestRevenue * Math.max(0.2, factor + riskAdjustment[index])));
 }
 
 function riskScoreFromLevel(riskLevel) {

@@ -7,6 +7,7 @@ This project now includes the full backend "engine" for the existing frontend:
 - `Node.js + Express` API layer
 - `Vercel` deployment support through a serverless API entrypoint
 - `MySQL 8` schema with seed data
+- extra 50-startup seed script for a stronger college demo dataset
 - Oracle PL/SQL viva script
 - views, triggers, stored procedures, complex joins, and subqueries
 - frontend integration that replaces `mockData.js` with live API calls
@@ -27,6 +28,7 @@ This project now includes the full backend "engine" for the existing frontend:
 
    ```sql
    SOURCE database/mysql_startup_investment_system.sql;
+   SOURCE database/seed_50_startups.sql;
    ```
 
 2. Copy `.env.example` to `.env` and set the MySQL credentials.
@@ -59,6 +61,7 @@ The deployed project can run in two modes:
 ## SQL Assets
 
 - [database/mysql_startup_investment_system.sql](./database/mysql_startup_investment_system.sql)
+- [database/seed_50_startups.sql](./database/seed_50_startups.sql)
 - [database/advanced_queries.sql](./database/advanced_queries.sql)
 - [database/oracle_plsql_queries.sql](./database/oracle_plsql_queries.sql)
 

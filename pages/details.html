@@ -62,9 +62,38 @@
             </div>
 
             <div class="glass-card" style="margin-top: 30px;">
-                <h3>Financial History (Revenue Growth)</h3>
+                <div class="section-heading-row">
+                    <div>
+                        <h3>Financial History (Revenue Growth)</h3>
+                        <p id="history-narrative" class="section-helper">Six-month revenue movement from latest financial metrics.</p>
+                    </div>
+                    <span id="history-growth-badge" class="detail-badge">0% MoM</span>
+                </div>
                 <div style="height: 400px; margin-top: 20px;">
                     <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="detail-intelligence-grid">
+                <div class="glass-card">
+                    <span class="system-label">Funding readout</span>
+                    <h3>Investment structure</h3>
+                    <div id="funding-readout" class="detail-list"></div>
+                </div>
+                <div class="glass-card">
+                    <span class="system-label">Market readout</span>
+                    <h3>External validation</h3>
+                    <div id="market-readout" class="detail-list"></div>
+                </div>
+                <div class="glass-card">
+                    <span class="system-label">Risk readout</span>
+                    <h3>Decision pressure</h3>
+                    <div id="risk-readout" class="detail-list"></div>
+                </div>
+                <div class="glass-card">
+                    <span class="system-label">DBMS viva mapping</span>
+                    <h3>Tables used</h3>
+                    <div id="sql-readout" class="sql-field-grid"></div>
                 </div>
             </div>
         </main>

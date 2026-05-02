@@ -28,6 +28,21 @@ app.get('/', (_req, res) => {
     res.redirect('/pages/index.html');
 });
 
+const pageRoutes = {
+    '/dashboard': 'index.html',
+    '/startups': 'startups.html',
+    '/details': 'details.html',
+    '/recommendations': 'recommendations.html',
+    '/analytics': 'analytics.html',
+    '/dbms': 'dbms.html'
+};
+
+Object.entries(pageRoutes).forEach(([route, fileName]) => {
+    app.get(route, (_req, res) => {
+        res.sendFile(path.join(__dirname, 'pages', fileName));
+    });
+});
+
 app.get('/api/health', asyncHandler(async (_req, res) => {
     const health = await getHealthCheck();
     res.json(health);
