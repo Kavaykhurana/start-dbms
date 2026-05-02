@@ -22,6 +22,16 @@ INSERT IGNORE INTO sectors (sector_name, sector_description, base_risk_score) VA
 ('Robotics', 'Warehouse, industrial, and service robotics systems with software orchestration.', 59),
 ('SpaceTech', 'Satellite data, geospatial analytics, and space-infrastructure products.', 57);
 
+INSERT IGNORE INTO investors (investor_name, investor_type, email, hq_city, dry_powder_inr, risk_preference, created_at) VALUES
+('Bharat Growth Ventures', 'VC', 'portfolio@bharatgrowth.vc', 'Bengaluru', 7200000000.00, 'High', '2023-08-01'),
+('Mumbai Fintech Angels', 'Angel', 'deals@mumbaifintechangels.in', 'Mumbai', 950000000.00, 'Medium', '2024-01-12'),
+('Karnataka SaaS Capital', 'VC', 'team@karnatakasaas.capital', 'Bengaluru', 3600000000.00, 'Medium', '2023-03-21'),
+('SouthBridge Corporate Ventures', 'Corporate VC', 'ventures@southbridgecorp.in', 'Hyderabad', 4100000000.00, 'Low', '2022-06-18'),
+('Indus Seed Partners', 'VC', 'partners@indusseed.vc', 'Delhi', 2400000000.00, 'High', '2024-02-05'),
+('Chennai DeepTech Partners', 'VC', 'hello@chennaideeptech.vc', 'Chennai', 3100000000.00, 'High', '2023-11-10'),
+('Gurugram Impact Capital', 'Family Office', 'office@gurugramimpact.in', 'Gurugram', 1800000000.00, 'Medium', '2024-04-16'),
+('Pune Climate Growth Fund', 'Family Office', 'climate@punegrowthfund.in', 'Pune', 2200000000.00, 'Low', '2023-09-27');
+
 CREATE TEMPORARY TABLE extended_startup_seed (
     startup_name VARCHAR(120) NOT NULL,
     sector_name VARCHAR(60) NOT NULL,
@@ -160,6 +170,44 @@ WHERE NOT EXISTS (
       AND i.investment_date = seed.investment_date
 );
 
+INSERT INTO investments (
+    investor_id, startup_id, funding_round, security_type, investment_date,
+    invested_amount_inr, equity_percentage, post_money_valuation_inr, status
+)
+SELECT
+    inv.investor_id,
+    s.startup_id,
+    round_seed.funding_round,
+    round_seed.security_type,
+    round_seed.investment_date,
+    round_seed.amount_cr * 10000000,
+    round_seed.equity_pct,
+    round_seed.valuation_cr * 10000000,
+    'Active'
+FROM (
+    SELECT 'RupeeRoute' AS startup_name, 'Mumbai Fintech Angels' AS investor_name, 'Bridge' AS funding_round, 'Convertible Note' AS security_type, '2026-04-18' AS investment_date, 6.50 AS amount_cr, 1.85 AS equity_pct, 340.00 AS valuation_cr
+    UNION ALL SELECT 'StackPilot','Karnataka SaaS Capital','Series A','Equity','2026-03-22',5.25,2.85,175.00
+    UNION ALL SELECT 'SecureAuth','Chennai DeepTech Partners','Series A','Equity','2026-04-10',4.80,2.30,98.00
+    UNION ALL SELECT 'GreenGrid','Pune Climate Growth Fund','Series B','Equity','2026-04-04',8.00,2.90,225.00
+    UNION ALL SELECT 'VaaniAI','Bharat Growth Ventures','Series A','Equity','2026-03-28',7.20,2.60,202.00
+    UNION ALL SELECT 'TrustVault','SouthBridge Corporate Ventures','Series B','Equity','2026-04-12',9.50,2.75,275.00
+    UNION ALL SELECT 'MedGenomeX','Chennai DeepTech Partners','Series A','Convertible Note','2026-02-16',6.00,2.15,176.00
+    UNION ALL SELECT 'EVFleet','Pune Climate Growth Fund','Series A','Equity','2026-03-09',6.75,2.40,190.00
+    UNION ALL SELECT 'PeopleCraft','Gurugram Impact Capital','Bridge','Convertible Note','2026-04-20',3.25,1.55,102.00
+    UNION ALL SELECT 'SpaceKart','Bharat Growth Ventures','Series A','Equity','2026-02-26',7.80,2.65,218.00
+    UNION ALL SELECT 'AgriPulse','Indus Seed Partners','Seed','SAFE','2026-01-30',1.90,3.20,42.00
+    UNION ALL SELECT 'SolarSetu','SouthBridge Corporate Ventures','Series A','Equity','2026-03-14',5.80,2.20,158.00
+) round_seed
+JOIN investors inv ON inv.investor_name = round_seed.investor_name
+JOIN startups s ON s.startup_name = round_seed.startup_name
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM investments i
+    WHERE i.startup_id = s.startup_id
+      AND i.investor_id = inv.investor_id
+      AND i.investment_date = round_seed.investment_date
+);
+
 INSERT INTO financial_metrics (
     startup_id, metric_month, revenue_inr, net_profit_inr, cash_reserve_inr,
     customer_count, mrr_inr, arr_inr, cac_inr, ltv_inr, burn_rate_inr,
@@ -260,6 +308,37 @@ WHERE NOT EXISTS (
     FROM partnerships p
     WHERE p.startup_id = s.startup_id
       AND p.partner_name = seed.partner_name
+);
+
+INSERT INTO partnerships (startup_id, partner_name, deal_type, impact_score, announced_date)
+SELECT
+    s.startup_id,
+    partner_seed.partner_name,
+    partner_seed.deal_type,
+    partner_seed.impact_score,
+    partner_seed.announced_date
+FROM (
+    SELECT 'RupeeRoute' AS startup_name, 'NPCI Sandbox' AS partner_name, 'LOI' AS deal_type, 8.40 AS impact_score, '2026-03-18' AS announced_date
+    UNION ALL SELECT 'LedgerLeap','SIDBI MSME Credit Cell','Pilot',8.10,'2026-03-22'
+    UNION ALL SELECT 'LearnNest','NSDC Digital Learning','Pilot',7.90,'2026-04-02'
+    UNION ALL SELECT 'MediMitra','Ayushman Bharat Digital Mission','LOI',8.30,'2026-03-11'
+    UNION ALL SELECT 'FleetMesh','Gati Shakti Logistics Cell','LOI',7.10,'2026-03-26'
+    UNION ALL SELECT 'CarbonLoop','TERI Clean Energy Lab','Pilot',8.00,'2026-04-01'
+    UNION ALL SELECT 'StackPilot','SaaSBoomi Growth Program','LOI',8.20,'2026-03-29'
+    UNION ALL SELECT 'SecureAuth','CERT-In Innovation Program','LOI',8.00,'2026-03-14'
+    UNION ALL SELECT 'GreenGrid','India Smart Grid Forum','Pilot',8.70,'2026-04-07'
+    UNION ALL SELECT 'VaaniAI','NASSCOM AI Foundry','Pilot',8.60,'2026-03-31'
+    UNION ALL SELECT 'TrustVault','Microsoft Security ISV Program','Pilot',8.90,'2026-04-09'
+    UNION ALL SELECT 'SpaceKart','IN-SPACe Technical Centre','Pilot',8.80,'2026-04-06'
+    UNION ALL SELECT 'EVFleet','SIAM EV Program','LOI',8.10,'2026-03-20'
+    UNION ALL SELECT 'PeopleCraft','NASSCOM FutureSkills Prime','Pilot',7.80,'2026-04-12'
+) partner_seed
+JOIN startups s ON s.startup_name = partner_seed.startup_name
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM partnerships p
+    WHERE p.startup_id = s.startup_id
+      AND p.partner_name = partner_seed.partner_name
 );
 
 INSERT INTO risk_analysis (investment_id, risk_score, factors, assessment_date)

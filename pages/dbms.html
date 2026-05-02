@@ -180,6 +180,79 @@ The database also contains views, triggers, stored procedures, complex joins, an
             <div class="glass-card" style="margin-top: 30px;">
                 <div class="section-heading">
                     <div>
+                        <h3>Normalization Walkthrough</h3>
+                        <p>Use this visual path when the teacher asks how the schema became clean and non-redundant.</p>
+                    </div>
+                    <span class="detail-badge">UNF → BCNF</span>
+                </div>
+                <div class="normalization-roadmap">
+                    <div>
+                        <strong>UNF</strong>
+                        <span>One messy investment sheet had startup, sector, investor, funding, metrics, market, partner, and risk columns repeated together.</span>
+                    </div>
+                    <div>
+                        <strong>1NF</strong>
+                        <span>Repeated groups were made atomic: one row per startup, one row per investment, one row per monthly metric.</span>
+                    </div>
+                    <div>
+                        <strong>2NF</strong>
+                        <span>Partial dependencies were removed: investor details moved to <code>investors</code>, sector details moved to <code>sectors</code>.</span>
+                    </div>
+                    <div>
+                        <strong>3NF</strong>
+                        <span>Transitive dependencies were removed: market snapshots, risk scores, and partnerships became separate child tables.</span>
+                    </div>
+                    <div>
+                        <strong>BCNF</strong>
+                        <span>Every determinant is a candidate key: lookup tables hold master data and transaction tables depend only on their keys.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <div class="section-heading">
+                    <div>
+                        <h3>Transaction Flow Diagram</h3>
+                        <p>This is the story from investor action to recommendation output.</p>
+                    </div>
+                    <a class="btn btn-secondary" href="/pages/sql-demo.html">Run SQL Demo</a>
+                </div>
+                <div class="transaction-flow">
+                    <div><strong>1</strong><span>Investor chooses startup</span><small><code>investors</code> + <code>startups</code></small></div>
+                    <div><strong>2</strong><span>Funding round is inserted</span><small><code>investments</code> stores amount, round, security, equity</small></div>
+                    <div><strong>3</strong><span>Equity trigger validates cap table</span><small><code>trig_EquityCheck</code> blocks equity &gt; 100%</small></div>
+                    <div><strong>4</strong><span>Risk snapshot is assessed</span><small><code>risk_analysis</code> stores score and factors</small></div>
+                    <div><strong>5</strong><span>Recommendation is recalculated</span><small><code>sp_GetRecommendation</code> ranks invest/watch/review</small></div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <div class="section-heading">
+                    <div>
+                        <h3>Viva Scripts</h3>
+                        <p>Short answers you can speak directly during evaluation.</p>
+                    </div>
+                    <span class="detail-badge">Presentation ready</span>
+                </div>
+                <div class="viva-script-grid">
+                    <div>
+                        <strong>60-second explanation</strong>
+                        <p>This project is a Startup Investment Analysis and Decision System. The frontend shows startup portfolio, investor exposure, recommendation score, analytics, SQL demo, and DBMS documentation. The backend API reads normalized MySQL tables and returns decision-ready data. The recommendation engine uses CAC, LTV, burn, runway, churn, risk, funding, and partnership validation to rank startups.</p>
+                    </div>
+                    <div>
+                        <strong>DBMS explanation</strong>
+                        <p>The schema is normalized into master tables, transaction tables, and analytics tables. <code>sectors</code>, <code>investors</code>, and <code>startups</code> store master data. <code>investments</code> connects investor and startup as a transaction. <code>financial_metrics</code>, <code>market_data</code>, <code>partnerships</code>, and <code>risk_analysis</code> store changing analytical facts.</p>
+                    </div>
+                    <div>
+                        <strong>Business explanation</strong>
+                        <p>An investor can see which startups have strong unit economics, enough cash runway, low risk, and external validation. The system turns raw business data into a simple decision: invest, watch, or review. This makes the project useful as both a DBMS implementation and an investor dashboard.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <div class="section-heading">
+                    <div>
                         <h3>SQL Queries Board</h3>
                         <p>The important queries are visible here, and full scripts are linked for copy/paste.</p>
                     </div>

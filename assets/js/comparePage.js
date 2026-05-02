@@ -2,7 +2,9 @@ import { investmentApi } from './api.js';
 
 const state = {
     startups: [],
-    selectedIds: []
+    selectedIds: [],
+    scoreChart: null,
+    capitalChart: null
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -39,6 +41,7 @@ function renderComparison() {
         .filter(Boolean);
 
     renderSummary(selected);
+    renderCharts(selected);
     renderCards(selected);
 }
 
@@ -92,6 +95,105 @@ function renderCards(selected) {
             </article>
         `;
     }).join('');
+}
+
+function renderCharts(selected) {
+    if (!window.Chart) {
+        return;
+    }
+
+    const labels = selected.map((startup) => startup.name);
+    const decisionScores = selected.map((startup) => getDecisionScore(startup));
+    const riskScores = selected.map((startup) => Number(startup.riskScore || 0));
+    const fundingCr = selected.map((startup) => Number(startup.totalFunding || 0) / 10000000);
+    const valuationCr = selected.map((startup) => Number(startup.valuation || 0) / 10000000);
+
+    state.scoreChart?.destroy();
+    state.capitalChart?.destroy();
+
+    state.scoreChart = new Chart(document.getElementById('comparison-score-chart'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Decision Index',
+                    data: decisionScores,
+                    backgroundColor: 'rgba(0, 210, 255, 0.65)',
+                    borderColor: '#00d2ff',
+                    borderWidth: 1,
+                    borderRadius: 8
+                },
+                {
+                    label: 'Risk Score',
+                    data: riskScores,
+                    backgroundColor: 'rgba(255, 107, 107, 0.55)',
+                    borderColor: '#ff6b6b',
+                    borderWidth: 1,
+                    borderRadius: 8
+                }
+            ]
+        },
+        options: getChartOptions('Score')
+    });
+
+    state.capitalChart = new Chart(document.getElementById('comparison-capital-chart'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Funding (Cr)',
+                    data: fundingCr,
+                    backgroundColor: 'rgba(0, 255, 136, 0.58)',
+                    borderColor: '#00ff88',
+                    borderWidth: 1,
+                    borderRadius: 8
+                },
+                {
+                    label: 'Valuation (Cr)',
+                    data: valuationCr,
+                    backgroundColor: 'rgba(255, 179, 71, 0.55)',
+                    borderColor: '#ffb347',
+                    borderWidth: 1,
+                    borderRadius: 8
+                }
+            ]
+        },
+        options: getChartOptions('INR Crore')
+    });
+}
+
+function getChartOptions(yTitle) {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 800,
+            easing: 'easeOutQuart'
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: { color: '#b0b3b8' }
+            },
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: yTitle, color: '#b0b3b8' },
+                grid: { color: 'rgba(255,255,255,0.06)' },
+                ticks: { color: '#b0b3b8' }
+            }
+        },
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#b0b3b8',
+                    usePointStyle: true,
+                    boxWidth: 10
+                }
+            }
+        }
+    };
 }
 
 function getDecisionScore(startup) {

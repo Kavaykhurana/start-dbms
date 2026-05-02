@@ -290,12 +290,15 @@ export async function getStartupDetails(startupId) {
                 COALESCE(fm.burn_rate_inr, 0) AS burnRate,
                 COALESCE(fm.runway_months, 0) AS runway,
                 COALESCE(fm.churn_rate, 0) AS churnRate,
-                COALESCE(fm.customer_count, 0) AS customerCount
+                COALESCE(fm.customer_count, 0) AS customerCount,
+                COALESCE(md.simulated_trend_value, 0) AS marketTrend,
+                COALESCE(md.competitor_score, 0) AS competitorScore
             FROM startups s
             JOIN sectors sec
                 ON sec.sector_id = s.sector_id
             ${latestFundingJoinSql}
             ${latestMetricJoinSql}
+            ${latestMarketJoinSql}
             ${latestRiskJoinSql}
             WHERE s.startup_id = ?
             LIMIT 1
@@ -305,14 +308,42 @@ export async function getStartupDetails(startupId) {
             return null;
         }
 
-        const financialHistory = await query(`
-            SELECT
-                DATE_FORMAT(metric_month, '%b %Y') AS label,
-                revenue_inr AS revenue
-            FROM financial_metrics
-            WHERE startup_id = ?
-            ORDER BY metric_month
-        `, [startupId]);
+        const [financialHistory, investmentRounds, partnerships] = await Promise.all([
+            query(`
+                SELECT
+                    DATE_FORMAT(metric_month, '%b %Y') AS label,
+                    revenue_inr AS revenue
+                FROM financial_metrics
+                WHERE startup_id = ?
+                ORDER BY metric_month
+            `, [startupId]),
+            query(`
+                SELECT
+                    i.investment_id AS investmentId,
+                    inv.investor_name AS investorName,
+                    i.funding_round AS fundingRound,
+                    i.security_type AS securityType,
+                    i.investment_date AS investmentDate,
+                    i.invested_amount_inr AS amountInr,
+                    i.equity_percentage AS equityPercentage,
+                    i.status
+                FROM investments i
+                JOIN investors inv
+                    ON inv.investor_id = i.investor_id
+                WHERE i.startup_id = ?
+                ORDER BY i.investment_date DESC, i.investment_id DESC
+            `, [startupId]),
+            query(`
+                SELECT
+                    partner_name AS partnerName,
+                    deal_type AS dealType,
+                    impact_score AS impactScore,
+                    announced_date AS announcedDate
+                FROM partnerships
+                WHERE startup_id = ?
+                ORDER BY impact_score DESC, announced_date DESC
+            `, [startupId])
+        ]);
 
         return {
             startup: {
@@ -332,7 +363,14 @@ export async function getStartupDetails(startupId) {
                 burnRate: Number(startupRows[0].burnRate || 0),
                 runway: Number(startupRows[0].runway || 0),
                 churnRate: Number(startupRows[0].churnRate || 0),
-                customerCount: Number(startupRows[0].customerCount || 0)
+                customerCount: Number(startupRows[0].customerCount || 0),
+                marketTrend: Number(startupRows[0].marketTrend || 0),
+                competitorScore: Number(startupRows[0].competitorScore || 0),
+                partnerName: partnerships[0]?.partnerName || null,
+                dealType: partnerships[0]?.dealType || null,
+                impactScore: Number(partnerships[0]?.impactScore || 0),
+                investmentRounds: investmentRounds.map(mapInvestmentRound),
+                partnerships: partnerships.map(mapPartnership)
             },
             financialHistory: {
                 labels: financialHistory.map((row) => row.label),
@@ -747,6 +785,28 @@ function normalizeSqlDemoRow(row, columns) {
     }, {});
 }
 
+function mapInvestmentRound(row) {
+    return {
+        investmentId: Number(row.investmentId || 0),
+        investorName: row.investorName,
+        fundingRound: row.fundingRound,
+        securityType: row.securityType,
+        investmentDate: row.investmentDate,
+        amountInr: Number(row.amountInr || 0),
+        equityPercentage: Number(row.equityPercentage || 0),
+        status: row.status
+    };
+}
+
+function mapPartnership(row) {
+    return {
+        partnerName: row.partnerName,
+        dealType: row.dealType,
+        impactScore: Number(row.impactScore || 0),
+        announcedDate: row.announcedDate
+    };
+}
+
 function mapInvestorRow(row) {
     return {
         id: Number(row.id || 0),
@@ -766,12 +826,14 @@ function mapInvestorRow(row) {
 
 function getFallbackInvestorPortfolio() {
     const investorSeed = [
-        ['Deccan Spark Ventures', 'VC', 'Bengaluru', 'High'],
-        ['ArthaLeap Capital', 'VC', 'Mumbai', 'Medium'],
-        ['Monsoon Peak Ventures', 'Angel', 'Gurugram', 'Medium'],
-        ['Trident Horizon Fund', 'Corporate VC', 'Hyderabad', 'Low'],
-        ['Lotus Grid Capital', 'Family Office', 'Pune', 'Low'],
-        ['Banyan Catalyst Partners', 'VC', 'Chennai', 'High']
+        ['Bharat Growth Ventures', 'VC', 'Bengaluru', 'High'],
+        ['Mumbai Fintech Angels', 'Angel', 'Mumbai', 'Medium'],
+        ['Karnataka SaaS Capital', 'VC', 'Bengaluru', 'Medium'],
+        ['SouthBridge Corporate Ventures', 'Corporate VC', 'Hyderabad', 'Low'],
+        ['Indus Seed Partners', 'VC', 'Delhi', 'High'],
+        ['Chennai DeepTech Partners', 'VC', 'Chennai', 'High'],
+        ['Gurugram Impact Capital', 'Family Office', 'Gurugram', 'Medium'],
+        ['Pune Climate Growth Fund', 'Family Office', 'Pune', 'Low']
     ];
     const startups = Object.values(fallbackData.startupDetailsById);
     const items = investorSeed.map(([name, investorType, hqCity, riskPreference], investorIndex) => {
@@ -856,10 +918,104 @@ function getFallbackStartupDetails(startupId) {
     }
 
     return {
-        startup,
+        startup: {
+            ...startup,
+            partnerships: buildFallbackPartnerships(startup),
+            investmentRounds: buildFallbackInvestmentRounds(startup)
+        },
         financialHistory: {
             labels: ['Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026'],
             data: fallbackData.startupHistory[startupId] || []
         }
     };
+}
+
+function buildFallbackPartnerships(startup) {
+    return [
+        {
+            partnerName: startup.partnerName,
+            dealType: startup.dealType,
+            impactScore: Number(startup.impactScore || 0),
+            announcedDate: '2026-04-08'
+        },
+        {
+            partnerName: getSecondaryPartner(startup),
+            dealType: startup.dealType === 'Pilot' ? 'LOI' : 'Pilot',
+            impactScore: Math.max(5.8, Number(startup.impactScore || 7) - 0.6),
+            announcedDate: '2026-03-18'
+        }
+    ].filter((partnership) => partnership.partnerName);
+}
+
+function buildFallbackInvestmentRounds(startup) {
+    const leadInvestors = [
+        'Bharat Growth Ventures',
+        'Mumbai Fintech Angels',
+        'Karnataka SaaS Capital',
+        'SouthBridge Corporate Ventures',
+        'Indus Seed Partners',
+        'Chennai DeepTech Partners',
+        'Gurugram Impact Capital',
+        'Pune Climate Growth Fund'
+    ];
+    const leadInvestor = leadInvestors[Number(startup.id || 0) % leadInvestors.length];
+    const coInvestor = leadInvestors[(Number(startup.id || 0) + 3) % leadInvestors.length];
+    const totalFunding = Number(startup.totalFunding || 0);
+    const latestAmount = Math.round(totalFunding * (startup.fundingStage === 'Seed' ? 0.72 : 0.64));
+    const earlierAmount = Math.max(0, totalFunding - latestAmount);
+    const latestDate = startup.fundingStage === 'Series B' ? '2026-03-21' : startup.fundingStage === 'Series A' ? '2026-02-14' : '2026-01-18';
+    const earlierRound = startup.fundingStage === 'Series B' ? 'Series A' : 'Seed';
+
+    return [
+        {
+            investmentId: Number(startup.id || 0),
+            investorName: leadInvestor,
+            fundingRound: startup.fundingStage,
+            securityType: startup.fundingStage === 'Seed' ? 'SAFE' : 'Equity',
+            investmentDate: latestDate,
+            amountInr: latestAmount,
+            equityPercentage: Number(((latestAmount / Math.max(1, startup.valuation)) * 100).toFixed(2)),
+            status: 'Active'
+        },
+        {
+            investmentId: 1000 + Number(startup.id || 0),
+            investorName: coInvestor,
+            fundingRound: earlierRound,
+            securityType: earlierRound === 'Seed' ? 'SAFE' : 'Convertible Note',
+            investmentDate: '2025-08-24',
+            amountInr: earlierAmount,
+            equityPercentage: Number(((earlierAmount / Math.max(1, startup.valuation)) * 100).toFixed(2)),
+            status: 'Active'
+        }
+    ].filter((round) => round.amountInr > 0);
+}
+
+function getSecondaryPartner(startup) {
+    const sectorPartners = {
+        'AI/ML': 'NASSCOM AI Foundry',
+        Agritech: 'NABARD Innovation Hub',
+        Biotech: 'BIRAC BioNEST',
+        ClimateTech: 'TERI Clean Energy Lab',
+        Cybersecurity: 'CERT-In Innovation Program',
+        Dronetech: 'Drone Federation India',
+        Ecommerce: 'ONDC Seller Network',
+        Edtech: 'NSDC Digital Learning',
+        Energy: 'India Smart Grid Forum',
+        Fintech: 'NPCI Sandbox',
+        Foodtech: 'FSSAI Food Innovation Lab',
+        Gaming: 'India Game Developer Conference',
+        Healthtech: 'Ayushman Bharat Digital Mission',
+        HRTech: 'NASSCOM FutureSkills Prime',
+        Insurtech: 'IRDAI Sandbox Partner',
+        LegalTech: 'India LegalTech Association',
+        Logistics: 'Gati Shakti Logistics Cell',
+        MediaTech: 'T-Hub Media Lab',
+        Mobility: 'SIAM EV Program',
+        Proptech: 'CREDAI Innovation Cell',
+        Robotics: 'CII Industrial Robotics Forum',
+        SaaS: 'SaaSBoomi Growth Program',
+        SpaceTech: 'IN-SPACe Technical Centre'
+    };
+
+    return sectorPartners[startup.sector] || 'Startup India Market Access Program';
 }

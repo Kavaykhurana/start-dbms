@@ -60,6 +60,32 @@
                 <pre id="sql-demo-code" class="code-panel">Loading SQL...</pre>
             </section>
 
+            <section class="glass-card procedure-demo-card">
+                <div class="section-heading">
+                    <div>
+                        <span class="system-label">Stored procedure demo</span>
+                        <h3>sp_CalculateROI</h3>
+                        <p>Enter an investment id and call the backend endpoint that maps to the stored procedure.</p>
+                    </div>
+                    <span class="detail-badge">Procedure output</span>
+                </div>
+                <div class="procedure-demo-grid">
+                    <div>
+                        <label>
+                            Investment ID
+                            <input id="roi-investment-id" type="number" min="1" step="1" value="1">
+                        </label>
+                        <button id="roi-run-button" class="btn btn-primary full-width-action" type="button">Run sp_CalculateROI</button>
+                        <div id="roi-demo-result" class="procedure-result">
+                            <span>ROI result</span>
+                            <strong>Waiting...</strong>
+                        </div>
+                    </div>
+                    <pre class="code-panel">CALL sp_CalculateROI(1, @roi_result);
+SELECT @roi_result AS roi_percentage;</pre>
+                </div>
+            </section>
+
             <section class="glass-card" style="margin-top: 24px;">
                 <div class="section-heading">
                     <div>

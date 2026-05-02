@@ -1892,6 +1892,177 @@ html[data-theme="light"] .code-panel {
     margin-top: 0;
 }
 
+.ledger-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.ledger-row {
+    align-items: center;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.ledger-row strong,
+.ledger-row span {
+    display: block;
+}
+
+.ledger-row span {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    margin-top: 5px;
+}
+
+.ledger-row > div:last-child {
+    text-align: right;
+}
+
+.comparison-chart-grid {
+    display: grid;
+    gap: 22px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 22px;
+}
+
+.procedure-demo-card {
+    margin-top: 24px;
+}
+
+.procedure-demo-grid {
+    align-items: start;
+    display: grid;
+    gap: 22px;
+    grid-template-columns: minmax(260px, 0.45fr) minmax(0, 1fr);
+}
+
+.procedure-demo-grid label {
+    color: var(--text-secondary);
+    display: grid;
+    font-size: 0.84rem;
+    font-weight: 700;
+    gap: 8px;
+}
+
+.procedure-result {
+    border: 1px solid rgba(0, 255, 136, 0.22);
+    border-radius: 12px;
+    display: grid;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 15px;
+    background: rgba(0, 255, 136, 0.055);
+}
+
+.procedure-result span,
+.procedure-result small {
+    color: var(--text-secondary);
+    display: block;
+}
+
+.procedure-result strong {
+    color: var(--accent-green);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.55rem;
+    line-height: 1.1;
+}
+
+.normalization-roadmap {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.normalization-roadmap div,
+.transaction-flow div,
+.viva-script-grid div {
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 16px;
+    background:
+        radial-gradient(circle at top right, rgba(0, 210, 255, 0.11), transparent 50%),
+        rgba(255, 255, 255, 0.04);
+}
+
+.normalization-roadmap strong {
+    color: var(--accent-blue);
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.normalization-roadmap span,
+.transaction-flow small,
+.viva-script-grid p {
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+.transaction-flow {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.transaction-flow div {
+    position: relative;
+}
+
+.transaction-flow div:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    width: 15px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+}
+
+.transaction-flow strong {
+    align-items: center;
+    background: rgba(0, 210, 255, 0.15);
+    border: 1px solid rgba(0, 210, 255, 0.28);
+    border-radius: 999px;
+    color: var(--accent-blue);
+    display: inline-flex;
+    font-family: 'Poppins', sans-serif;
+    height: 34px;
+    justify-content: center;
+    margin-bottom: 12px;
+    width: 34px;
+}
+
+.transaction-flow span,
+.transaction-flow small {
+    display: block;
+}
+
+.transaction-flow span {
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.viva-script-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.viva-script-grid strong {
+    color: var(--accent-green);
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+}
+
 canvas {
     opacity: 0.96;
 }
@@ -2044,8 +2215,17 @@ canvas {
     .recommendation-metrics,
     .comparison-summary-card,
     .comparison-grid,
+    .comparison-chart-grid,
+    .procedure-demo-grid,
+    .normalization-roadmap,
+    .transaction-flow,
+    .viva-script-grid,
     .investor-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .transaction-flow div:not(:last-child)::after {
+        display: none;
     }
 
     .recommendation-sidebar {
@@ -2102,6 +2282,11 @@ canvas {
     .dbms-proof-grid,
     .comparison-summary-card,
     .comparison-grid,
+    .comparison-chart-grid,
+    .procedure-demo-grid,
+    .normalization-roadmap,
+    .transaction-flow,
+    .viva-script-grid,
     .investor-grid {
         grid-template-columns: 1fr;
     }
@@ -2117,10 +2302,15 @@ canvas {
 
     .form-grid,
     .detail-list div,
+    .ledger-row,
     .comparison-title,
     .investor-card-header {
         grid-template-columns: 1fr;
         flex-direction: column;
+    }
+
+    .ledger-row > div:last-child {
+        text-align: left;
     }
 
     .sql-runner-toolbar .btn {

@@ -8,6 +8,7 @@
     <title>Compare Startups | Startup Investment System</title>
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -48,11 +49,26 @@
             </section>
 
             <section id="comparison-summary" class="comparison-summary"></section>
+            <section class="comparison-chart-grid">
+                <div class="glass-card">
+                    <h3>Decision Score vs Risk</h3>
+                    <div style="height: 320px; margin-top: 18px;">
+                        <canvas id="comparison-score-chart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3>Funding vs Valuation</h3>
+                    <div style="height: 320px; margin-top: 18px;">
+                        <canvas id="comparison-capital-chart"></canvas>
+                    </div>
+                </div>
+            </section>
             <section id="comparison-grid" class="comparison-grid"></section>
         </main>
     </div>
 
     <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/charts.js"></script>
     <script type="module" src="../assets/js/comparePage.js"></script>
 </body>
 </html>

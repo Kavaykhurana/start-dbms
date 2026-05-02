@@ -8,14 +8,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const select = document.getElementById('sql-query-select');
     const runButton = document.getElementById('sql-run-button');
     const copyButton = document.getElementById('sql-copy-button');
+    const roiButton = document.getElementById('roi-run-button');
 
     select.addEventListener('change', () => loadDemo(select.value));
     runButton.addEventListener('click', () => loadDemo(select.value));
     copyButton.addEventListener('click', copySql);
+    roiButton.addEventListener('click', runRoiProcedure);
 
     await Promise.all([
         loadHealth(),
-        loadDemo(select.value)
+        loadDemo(select.value),
+        runRoiProcedure()
     ]);
 });
 
@@ -111,6 +114,31 @@ async function copySql() {
     window.setTimeout(() => {
         button.textContent = 'Copy SQL';
     }, 1200);
+}
+
+async function runRoiProcedure() {
+    const input = document.getElementById('roi-investment-id');
+    const result = document.getElementById('roi-demo-result');
+    const investmentId = Number(input.value || 1);
+
+    result.innerHTML = `
+        <span>ROI result</span>
+        <strong>Running...</strong>
+    `;
+
+    try {
+        const payload = await investmentApi.getInvestmentROI(investmentId);
+        result.innerHTML = `
+            <span>Investment #${payload.investmentId}</span>
+            <strong>${Number(payload.roiPercentage || 0).toFixed(2)}%</strong>
+            <small>Computed by sp_CalculateROI logic using latest net profit, investment amount, and equity percentage.</small>
+        `;
+    } catch (error) {
+        result.innerHTML = `
+            <span>Procedure failed</span>
+            <strong>${escapeHtml(error.message)}</strong>
+        `;
+    }
 }
 
 function formatCell(value) {

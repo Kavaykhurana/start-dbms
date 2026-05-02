@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderProfile(startup);
         renderSignals(startup);
         renderDeepDetails(startup, financialHistory);
+        renderLedgers(startup);
 
         const chartValues = financialHistory.data.map((value) => Number((value / 10000000).toFixed(2)));
         const ctx = document.getElementById('historyChart').getContext('2d');
@@ -74,13 +75,14 @@ function renderProfile(startup) {
 function renderSignals(startup) {
     const signalDetails = document.getElementById('signal-details');
     const ltvCacRatio = startup.cac ? startup.ltv / startup.cac : 0;
+    const partnerships = getPartnerships(startup);
     const signals = [
         ['LTV/CAC', `${ltvCacRatio.toFixed(2)}x`],
         ['Risk Score', Number(startup.riskScore || 0).toFixed(0)],
         ['Churn', `${Number(startup.churnRate || 0).toFixed(1)}%`],
         ['Customers', Number(startup.customerCount || 0).toLocaleString('en-IN')],
         ['Market Trend', `${Number(startup.marketTrend || 0).toFixed(0)}/100`],
-        ['Partner Deal', `${startup.partnerName || 'N/A'} • ${startup.dealType || 'N/A'}`]
+        ['Partner Deals', `${partnerships.length} validation row${partnerships.length === 1 ? '' : 's'}`]
     ];
 
     signalDetails.innerHTML = '';
@@ -100,6 +102,10 @@ function renderDeepDetails(startup, financialHistory) {
     const growthRate = firstRevenue > 0 ? ((latestRevenue - firstRevenue) / firstRevenue) * 100 : 0;
     const ltvCacRatio = startup.cac ? startup.ltv / startup.cac : 0;
     const impliedEquity = startup.valuation ? (startup.totalFunding / startup.valuation) * 100 : 0;
+    const investmentRounds = getInvestmentRounds(startup);
+    const partnerships = getPartnerships(startup);
+    const leadRound = investmentRounds[0];
+    const leadPartner = partnerships[0];
 
     document.getElementById('history-narrative').textContent = buildHistoryNarrative(startup, growthRate, latestRevenue);
     document.getElementById('history-growth-badge').textContent = `${growthRate.toFixed(1)}% six-month growth`;
@@ -109,16 +115,18 @@ function renderDeepDetails(startup, financialHistory) {
         ['Total Funding', formatCompactCurrency(startup.totalFunding)],
         ['Current Valuation', formatCompactCurrency(startup.valuation)],
         ['Implied Equity', `${impliedEquity.toFixed(2)}%`],
-        ['Likely Instrument', getInstrument(startup.fundingStage)]
+        ['Lead Investor', leadRound?.investorName || 'N/A'],
+        ['Round Count', `${investmentRounds.length} investment row${investmentRounds.length === 1 ? '' : 's'}`],
+        ['Latest Instrument', leadRound?.securityType || getInstrument(startup.fundingStage)]
     ]);
 
     renderDetailRows('market-readout', [
         ['Sector', startup.sector || 'N/A'],
         ['Market Trend', `${Number(startup.marketTrend || 0).toFixed(0)}/100`],
         ['Competitor Score', `${Number(startup.competitorScore || 0).toFixed(0)}/100`],
-        ['Partner', startup.partnerName || 'N/A'],
-        ['Deal Type', startup.dealType || 'N/A'],
-        ['Impact Score', `${Number(startup.impactScore || 0).toFixed(1)}/10`]
+        ['Lead Partner', leadPartner?.partnerName || startup.partnerName || 'N/A'],
+        ['Deal Mix', partnerships.map((partner) => partner.dealType).join(' + ') || startup.dealType || 'N/A'],
+        ['Top Impact Score', `${Number(leadPartner?.impactScore || startup.impactScore || 0).toFixed(1)}/10`]
     ]);
 
     renderDetailRows('risk-readout', [
@@ -146,13 +154,15 @@ function renderDetailRows(containerId, rows) {
 
 function renderSqlReadout(startup) {
     const container = document.getElementById('sql-readout');
+    const partnerships = getPartnerships(startup);
+    const investmentRounds = getInvestmentRounds(startup);
     const rows = [
         ['startups', `startup_id=${startup.id}, sector_id via ${startup.sector}`],
         ['financial_metrics', 'CAC, LTV, burn_rate, runway, churn_rate'],
         ['market_data', `trend=${Number(startup.marketTrend || 0).toFixed(0)}, competitor=${Number(startup.competitorScore || 0).toFixed(0)}`],
-        ['partnerships', `${startup.partnerName || 'N/A'} (${startup.dealType || 'N/A'})`],
+        ['partnerships', `${partnerships.length} validation row${partnerships.length === 1 ? '' : 's'}`],
         ['risk_analysis', `risk_score=${Number(startup.riskScore || 0).toFixed(0)}`],
-        ['investments', `${startup.fundingStage || 'N/A'} round, ${formatCompactCurrency(startup.totalFunding)} funding`]
+        ['investments', `${investmentRounds.length} round row${investmentRounds.length === 1 ? '' : 's'}, ${formatCompactCurrency(startup.totalFunding)} funding`]
     ];
 
     container.innerHTML = rows.map(([tableName, description]) => `
@@ -161,6 +171,47 @@ function renderSqlReadout(startup) {
             <span>${escapeHtml(description)}</span>
         </div>
     `).join('');
+}
+
+function renderLedgers(startup) {
+    renderFundingLedger(startup);
+    renderPartnershipLedger(startup);
+}
+
+function renderFundingLedger(startup) {
+    const container = document.getElementById('funding-round-ledger');
+    const rounds = getInvestmentRounds(startup);
+
+    container.innerHTML = rounds.map((round) => `
+        <div class="ledger-row">
+            <div>
+                <strong>${escapeHtml(round.fundingRound || startup.fundingStage || 'Round')}</strong>
+                <span>${escapeHtml(round.investorName || 'Unknown investor')} • ${escapeHtml(round.securityType || getInstrument(round.fundingRound))}</span>
+            </div>
+            <div>
+                <strong>${formatCompactCurrency(round.amountInr)}</strong>
+                <span>${Number(round.equityPercentage || 0).toFixed(2)}% equity • ${escapeHtml(formatDate(round.investmentDate))}</span>
+            </div>
+        </div>
+    `).join('') || '<p class="section-helper">No investment rows available.</p>';
+}
+
+function renderPartnershipLedger(startup) {
+    const container = document.getElementById('partnership-ledger');
+    const partnerships = getPartnerships(startup);
+
+    container.innerHTML = partnerships.map((partner) => `
+        <div class="ledger-row">
+            <div>
+                <strong>${escapeHtml(partner.partnerName || 'Partner')}</strong>
+                <span>${escapeHtml(partner.dealType || 'Deal')} • ${escapeHtml(formatDate(partner.announcedDate))}</span>
+            </div>
+            <div>
+                <strong>${Number(partner.impactScore || 0).toFixed(1)}/10</strong>
+                <span>Impact score</span>
+            </div>
+        </div>
+    `).join('') || '<p class="section-helper">No partnership rows available.</p>';
 }
 
 function buildHistoryNarrative(startup, growthRate, latestRevenue) {
@@ -207,6 +258,52 @@ function getInstrument(stage) {
     }
 
     return 'Preferred Equity';
+}
+
+function getPartnerships(startup) {
+    if (Array.isArray(startup.partnerships) && startup.partnerships.length) {
+        return startup.partnerships;
+    }
+
+    if (!startup.partnerName) {
+        return [];
+    }
+
+    return [{
+        partnerName: startup.partnerName,
+        dealType: startup.dealType,
+        impactScore: startup.impactScore,
+        announcedDate: '2026-04-08'
+    }];
+}
+
+function getInvestmentRounds(startup) {
+    if (Array.isArray(startup.investmentRounds) && startup.investmentRounds.length) {
+        return startup.investmentRounds;
+    }
+
+    return [{
+        investmentId: startup.id,
+        investorName: 'Demo Lead Investor',
+        fundingRound: startup.fundingStage,
+        securityType: getInstrument(startup.fundingStage),
+        investmentDate: '2026-04-01',
+        amountInr: startup.totalFunding,
+        equityPercentage: startup.valuation ? (startup.totalFunding / startup.valuation) * 100 : 0,
+        status: 'Active'
+    }];
+}
+
+function formatDate(dateValue) {
+    if (!dateValue) {
+        return 'N/A';
+    }
+
+    return new Date(dateValue).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
 }
 
 function getChartColor(riskLevel) {

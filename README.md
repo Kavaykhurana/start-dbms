@@ -10,6 +10,8 @@ This project now includes the full backend "engine" for the existing frontend:
 - extra 50-startup seed script for a stronger college demo dataset
 - investor portfolio, startup comparison, and safe SQL runner demo pages
 - Teacher Demo Mode overlay for a quick viva walkthrough
+- visual normalization walkthrough, transaction flow diagram, and viva scripts
+- stored procedure demo for `sp_CalculateROI`
 - Oracle PL/SQL viva script
 - views, triggers, stored procedures, complex joins, and subqueries
 - frontend integration that replaces `mockData.js` with live API calls
@@ -101,8 +103,8 @@ Then import `database/mysql_startup_investment_system.sql` and `database/seed_50
 4. Open `/pages/recommendations.html`, click `Explain Score`, and explain the recommendation score.
 5. Open `/pages/investors.html` and explain Investor -> Investments -> Startups joins.
 6. Open `/pages/compare.html` and compare three startups using the same normalized metrics.
-7. Open `/pages/sql-demo.html` and run the preset SQL demos.
+7. Open `/pages/sql-demo.html`, run the preset SQL demos, and run `sp_CalculateROI`.
 8. Open `/pages/analytics.html` and explain the graphs.
-9. Open `/pages/dbms.html` and show ER diagram, normalization, PL/SQL trigger, procedure, and complex join.
+9. Open `/pages/dbms.html` and show ER diagram, normalization, transaction flow, viva scripts, PL/SQL trigger, procedure, and complex join.
 
 Use the `Teacher Demo Mode` button in the sidebar when you want the guided sequence inside the UI itself.
