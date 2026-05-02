@@ -21,11 +21,39 @@
 
         <main class="main-content">
             <header class="header">
-                <h1>Startup Portfolio</h1>
+                <div>
+                    <h1>Startup Portfolio</h1>
+                    <p class="page-subtitle">Company master data joined with financial metrics, risk scores, and funding history.</p>
+                </div>
                 <button class="btn btn-primary" id="add-startup-button">+ Add Startup</button>
             </header>
 
-            <div class="glass-card">
+            <section class="glass-card startup-hero">
+                <div>
+                    <span class="system-label">Startup master table + analytics joins</span>
+                    <h2>See every startup as an investment record, not just a row.</h2>
+                    <p>Use this page to explain the DBMS flow: sectors classify startups, investments store funding, financial metrics store CAC/LTV/runway, and risk analysis produces investor-ready alerts.</p>
+                </div>
+                <div id="startup-summary-grid" class="startup-summary-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <section class="startup-insight-grid">
+                <div class="glass-card startup-insight-card" id="stage-mix-card"></div>
+                <div class="glass-card startup-insight-card" id="risk-mix-card"></div>
+                <div class="glass-card startup-insight-card" id="sector-leader-card"></div>
+                <div class="glass-card startup-insight-card" id="watchlist-card"></div>
+            </section>
+
+            <div class="glass-card startup-directory-card">
+                <div class="section-heading">
+                    <div>
+                        <h3>Portfolio Directory</h3>
+                        <p id="startup-result-count">Loading startups...</p>
+                    </div>
+                    <a href="/pages/recommendations.html" class="btn btn-secondary">Open Recommendations</a>
+                </div>
                 <div class="filters">
                     <input type="text" id="search" placeholder="Search startups..." style="flex: 1;">
                     <select id="filter-sector">
@@ -46,15 +74,12 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Startup Name</th>
-                                <th>Sector</th>
-                                <th>Stage</th>
-                                <th>Location</th>
-                                <th>Total Funding</th>
-                                <th>Runway</th>
-                                <th>LTV/CAC</th>
-                                <th>Risk Level</th>
-                                <th>Action</th>
+                                <th>Startup Profile</th>
+                                <th>Capital Snapshot</th>
+                                <th>Runway Health</th>
+                                <th>Unit Economics</th>
+                                <th>Risk</th>
+                                <th>Decision</th>
                             </tr>
                         </thead>
                         <tbody id="startup-table-body">

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('search');
     const sectorSelect = document.getElementById('filter-sector');
     const riskSelect = document.getElementById('filter-risk');
+    const resultCount = document.getElementById('startup-result-count');
     const addButton = document.getElementById('add-startup-button');
     const modal = document.getElementById('startup-modal');
     const form = document.getElementById('startup-form');
@@ -25,9 +26,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const localStartups = getLocalStartups();
             const sectors = [...new Set([...payload.sectors, ...localStartups.map((startup) => startup.sector)])].sort();
-            populateSectors(sectors);
+            const allStartups = [...payload.items, ...localStartups];
+            const filteredStartups = applyClientFilters(allStartups);
 
-            renderTable(applyClientFilters([...payload.items, ...localStartups]));
+            populateSectors(sectors);
+            renderPortfolioSummary(allStartups, filteredStartups);
+            renderPortfolioInsights(allStartups);
+
+            renderTable(filteredStartups);
         } catch (error) {
             renderPageError('.main-content', error.message);
         }
@@ -49,11 +55,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderTable(data) {
         tableBody.innerHTML = '';
+        resultCount.textContent = `${data.length} startups shown in the current portfolio view`;
 
         if (!data.length) {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 25px 0;">
+                <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 25px 0;">
                     No startups matched the current filters.
                 </td>
             `;
@@ -64,19 +71,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         data.forEach((startup) => {
             const row = document.createElement('tr');
             const ltvCacRatio = Number(startup.ltvCacRatio || 0);
+            const runway = Number(startup.runway || 0);
+            const riskScore = Number(startup.riskScore || 0);
+            const decision = getDecisionSignal(startup);
+            const runwayPercent = Math.min(100, Math.max(5, (runway / 18) * 100));
+            const ltvPercent = Math.min(100, Math.max(5, (ltvCacRatio / 7) * 100));
+
             row.innerHTML = `
-                <td>
+                <td class="startup-profile-cell">
                     <strong>${escapeHtml(startup.name)}</strong>
-                    ${startup.isLocal ? '<span class="table-note">Added locally</span>' : ''}
+                    <span>${escapeHtml(startup.sector)} • ${escapeHtml(startup.fundingStage)} • ${escapeHtml([startup.city, startup.state].filter(Boolean).join(', ') || 'India')}</span>
+                    <div class="profile-tags">
+                        <em>${startup.isLocal ? 'Local session entry' : 'Seed DB record'}</em>
+                        <em>${getStageMaturity(startup.fundingStage)}</em>
+                    </div>
                 </td>
-                <td>${escapeHtml(startup.sector)}</td>
-                <td>${escapeHtml(startup.fundingStage)}</td>
-                <td>${escapeHtml([startup.city, startup.state].filter(Boolean).join(', ') || 'India')}</td>
-                <td>${formatCurrency(startup.totalFunding)}</td>
-                <td>${Number(startup.runway || 0).toFixed(1)} mo</td>
-                <td>${ltvCacRatio ? `${ltvCacRatio.toFixed(2)}x` : 'N/A'}</td>
-                <td><span class="badge ${getRiskBadge(startup.riskLevel)}">${startup.riskLevel}</span></td>
-                <td><a href="/pages/details.html?id=${encodeURIComponent(startup.id)}" class="btn btn-secondary">Details</a></td>
+                <td>
+                    <strong>${formatCompactCurrency(startup.totalFunding)}</strong>
+                    <span class="cell-note">Funding raised</span>
+                    <span class="cell-note">Valuation ${formatCompactCurrency(startup.valuation)}</span>
+                </td>
+                <td>
+                    <div class="mini-meter runway-meter"><span style="width: ${runwayPercent}%"></span></div>
+                    <strong>${runway.toFixed(1)} mo</strong>
+                    <span class="cell-note">${getRunwayCopy(runway)}</span>
+                </td>
+                <td>
+                    <div class="mini-meter economics-meter"><span style="width: ${ltvPercent}%"></span></div>
+                    <strong>${ltvCacRatio ? `${ltvCacRatio.toFixed(2)}x` : 'N/A'}</strong>
+                    <span class="cell-note">${getEconomicsCopy(ltvCacRatio)}</span>
+                </td>
+                <td>
+                    <span class="badge ${getRiskBadge(startup.riskLevel)}">${startup.riskLevel}</span>
+                    <span class="cell-note">Risk score ${riskScore.toFixed(0)}</span>
+                </td>
+                <td class="decision-cell">
+                    <strong class="${decision.className}">${decision.label}</strong>
+                    <span>${decision.reason}</span>
+                    <a href="/pages/details.html?id=${encodeURIComponent(startup.id)}" class="btn btn-secondary">Details</a>
+                </td>
             `;
             tableBody.appendChild(row);
         });
@@ -135,6 +168,169 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await loadStartups();
 });
+
+function renderPortfolioSummary(allStartups, filteredStartups) {
+    const container = document.getElementById('startup-summary-grid');
+    const totalFunding = allStartups.reduce((sum, startup) => sum + Number(startup.totalFunding || 0), 0);
+    const totalValuation = allStartups.reduce((sum, startup) => sum + Number(startup.valuation || 0), 0);
+    const avgRunway = average(allStartups.map((startup) => Number(startup.runway || 0)));
+    const sectors = new Set(allStartups.map((startup) => startup.sector));
+
+    container.innerHTML = `
+        ${renderSummaryTile('Portfolio size', `${allStartups.length}`, `${filteredStartups.length} visible after filters`)}
+        ${renderSummaryTile('Capital tracked', formatCompactCurrency(totalFunding), 'Total funding across startups')}
+        ${renderSummaryTile('Valuation base', formatCompactCurrency(totalValuation), 'Current marked valuation')}
+        ${renderSummaryTile('Sector spread', `${sectors.size}`, `Avg runway ${avgRunway.toFixed(1)} months`)}
+    `;
+}
+
+function renderPortfolioInsights(startups) {
+    const stageCounts = countBy(startups, 'fundingStage');
+    const riskCounts = countBy(startups, 'riskLevel');
+    const sectorFunding = Object.entries(groupBy(startups, 'sector'))
+        .map(([sector, sectorStartups]) => ({
+            sector,
+            funding: sectorStartups.reduce((sum, startup) => sum + Number(startup.totalFunding || 0), 0),
+            count: sectorStartups.length
+        }))
+        .sort((a, b) => b.funding - a.funding)[0];
+    const watchlist = startups
+        .filter((startup) => Number(startup.runway || 0) < 8 || startup.riskLevel === 'High')
+        .sort((a, b) => Number(a.runway || 0) - Number(b.runway || 0))
+        .slice(0, 3);
+
+    document.getElementById('stage-mix-card').innerHTML = `
+        <span class="system-label">Funding stage mix</span>
+        <h3>${Object.keys(stageCounts).length} active stages</h3>
+        <div class="portfolio-chip-row">${renderCountChips(stageCounts)}</div>
+    `;
+
+    document.getElementById('risk-mix-card').innerHTML = `
+        <span class="system-label">Risk distribution</span>
+        <h3>${riskCounts.Low || 0} low-risk startups</h3>
+        <div class="portfolio-chip-row">${renderCountChips(riskCounts)}</div>
+    `;
+
+    document.getElementById('sector-leader-card').innerHTML = `
+        <span class="system-label">Capital concentration</span>
+        <h3>${escapeHtml(sectorFunding?.sector || 'No sector')}</h3>
+        <p>${sectorFunding ? `${formatCompactCurrency(sectorFunding.funding)} deployed across ${sectorFunding.count} startup${sectorFunding.count === 1 ? '' : 's'}.` : 'No funding data available.'}</p>
+    `;
+
+    document.getElementById('watchlist-card').innerHTML = `
+        <span class="system-label">Runway watchlist</span>
+        <h3>${watchlist.length} needs review</h3>
+        <div class="watchlist-mini">
+            ${watchlist.map((startup) => `<a href="/pages/details.html?id=${encodeURIComponent(startup.id)}"><strong>${escapeHtml(startup.name)}</strong><span>${Number(startup.runway || 0).toFixed(1)} mo • ${startup.riskLevel}</span></a>`).join('') || '<p>No urgent runway alerts.</p>'}
+        </div>
+    `;
+}
+
+function renderSummaryTile(label, value, helper) {
+    return `
+        <div>
+            <span>${label}</span>
+            <strong>${value}</strong>
+            <small>${helper}</small>
+        </div>
+    `;
+}
+
+function renderCountChips(counts) {
+    return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, count]) => `<span>${escapeHtml(label)} <strong>${count}</strong></span>`)
+        .join('');
+}
+
+function getDecisionSignal(startup) {
+    const ltvCacRatio = Number(startup.ltvCacRatio || 0);
+    const riskScore = Number(startup.riskScore || 0);
+    const runway = Number(startup.runway || 0);
+
+    if (ltvCacRatio >= 5 && riskScore < 45 && runway >= 10) {
+        return {
+            label: 'Invest',
+            reason: 'Strong economics',
+            className: 'decision-invest'
+        };
+    }
+
+    if (riskScore >= 65 || runway < 6) {
+        return {
+            label: 'Review',
+            reason: 'Risk trigger',
+            className: 'decision-review'
+        };
+    }
+
+    return {
+        label: 'Watch',
+        reason: 'Needs monitoring',
+        className: 'decision-watch'
+    };
+}
+
+function getStageMaturity(stage) {
+    if (stage === 'Series B') {
+        return 'Scale stage';
+    }
+
+    if (stage === 'Series A') {
+        return 'Growth stage';
+    }
+
+    return 'Early stage';
+}
+
+function getRunwayCopy(runway) {
+    if (runway >= 12) {
+        return 'Healthy buffer';
+    }
+
+    if (runway >= 8) {
+        return 'Moderate buffer';
+    }
+
+    return 'Low runway alert';
+}
+
+function getEconomicsCopy(ltvCacRatio) {
+    if (ltvCacRatio >= 5) {
+        return 'Efficient acquisition';
+    }
+
+    if (ltvCacRatio >= 3) {
+        return 'Acceptable economics';
+    }
+
+    return 'Needs CAC control';
+}
+
+function average(values) {
+    if (!values.length) {
+        return 0;
+    }
+
+    return values.reduce((sum, value) => sum + Number(value || 0), 0) / values.length;
+}
+
+function countBy(items, key) {
+    return items.reduce((counts, item) => {
+        const value = item[key] || 'Unknown';
+        counts[value] = (counts[value] || 0) + 1;
+        return counts;
+    }, {});
+}
+
+function groupBy(items, key) {
+    return items.reduce((groups, item) => {
+        const value = item[key] || 'Unknown';
+        groups[value] = groups[value] || [];
+        groups[value].push(item);
+        return groups;
+    }, {});
+}
 
 function openModal() {
     const modal = document.getElementById('startup-modal');

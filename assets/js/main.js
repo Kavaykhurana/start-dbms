@@ -1,4 +1,8 @@
 // Global logic and UI helpers
+const THEME_STORAGE_KEY = 'ventureAnalytics.theme';
+
+applyTheme(getStoredTheme());
+
 document.addEventListener('DOMContentLoaded', () => {
     // Set active link in sidebar
     const currentPath = window.location.pathname;
@@ -9,7 +13,57 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.add('active');
         }
     });
+
+    mountThemeToggle();
 });
+
+function getStoredTheme() {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+        return savedTheme;
+    }
+
+    return 'dark';
+}
+
+function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+}
+
+function mountThemeToggle() {
+    const sidebar = document.querySelector('.sidebar');
+
+    if (!sidebar || document.getElementById('theme-toggle')) {
+        return;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'theme-switcher';
+
+    const button = document.createElement('button');
+    button.id = 'theme-toggle';
+    button.className = 'theme-toggle';
+    button.type = 'button';
+
+    function syncButton() {
+        const isLight = document.documentElement.dataset.theme === 'light';
+        button.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+        button.setAttribute('aria-pressed', String(isLight));
+        button.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+    }
+
+    button.addEventListener('click', () => {
+        const nextTheme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+        applyTheme(nextTheme);
+        syncButton();
+    });
+
+    syncButton();
+    wrapper.appendChild(button);
+    sidebar.appendChild(wrapper);
+}
 
 // Helper function to format currency
 function formatCurrency(value) {
